@@ -7,9 +7,11 @@ export const About: React.FC = () => {
 
     const handleDownloadResume = () => {
         const link = document.createElement('a');
-        link.href = '/Resume_Rangga_Ivano.pdf';
+        link.href = '/resume-rangga-ivano.pdf';
         link.download = 'resume-rangga-ivano.pdf';
+        document.body.appendChild(link);
         link.click();
+        document.body.removeChild(link);
     };
 
     return (
