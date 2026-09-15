@@ -45,8 +45,7 @@ function App() {
           {/* Rute Interactive Labs */}
           <Route path="/labs" element={<DemoShell />}>
             <Route index element={<div className="text-center py-20 text-slate-500">Pilih project demo dari halaman portofolio.</div>} />
-
-            {/* INI RUTE BARUNYA */}
+            {/* Pastikan rute "spk" memanggil <SpkLab /> */}
             <Route path="spk" element={<SpkLab />} />
           </Route>
         </Routes>
