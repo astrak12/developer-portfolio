@@ -23,7 +23,7 @@ export const GitHubActivity: React.FC = () => {
         getGitHubRepos()
             .then((res) => {
                 const data = res.data;
-                setRepos(data.repos || data.data || []);
+                setRepos(Array.isArray(data) ? data : data.repos || data.data || []);
                 setLoading(false);
             })
             .catch((err) => {

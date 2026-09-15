@@ -13,7 +13,7 @@ export const API = axios.create({
     },
 });
 
-export const getGitHubRepos = () => API.get('/github/repos');
+export const getGitHubRepos = () => axios.get('https://api.github.com/users/astrak12/repos?sort=updated&per_page=6');
 export const getProfile = () => API.get('/profile');
 export const getSkills = () => API.get('/skills');
 export const getProjects = () => API.get('/projects');
