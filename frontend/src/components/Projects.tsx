@@ -1,6 +1,7 @@
 // frontend/src/components/Projects.tsx
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 
 interface ProjectItem {
     title: string;
@@ -14,6 +15,7 @@ interface ProjectItem {
 export const Projects: React.FC = () => {
     const { t } = useTranslation();
     const projects = t('projects.items', { returnObjects: true }) as ProjectItem[];
+    const navigate = useNavigate();
 
     return (
         <section id="projects" className="py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
@@ -68,7 +70,16 @@ export const Projects: React.FC = () => {
                         </div>
 
                         <div className="flex items-center space-x-3 pt-4 border-t border-slate-200 dark:border-space-starlight/10 font-mono text-xs">
-                            {project.demoUrl !== "#" ? (
+                            {/* Logika Tombol Demo Baru */}
+                            {project.demoUrl.startsWith('/labs') ? (
+                                <button
+                                    onClick={() => navigate(project.demoUrl)}
+                                    className="flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 dark:from-space-starlight dark:to-space-nebula text-white dark:text-space-dark font-bold text-center hover:opacity-90 transition-all shadow-md flex items-center justify-center space-x-2"
+                                >
+                                    <span>Try Demo</span>
+                                    <span className="text-lg">🧪</span>
+                                </button>
+                            ) : project.demoUrl !== "#" ? (
                                 <a
                                     href={project.demoUrl}
                                     target="_blank"

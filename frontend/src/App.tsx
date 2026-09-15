@@ -1,4 +1,5 @@
 // frontend/src/App.tsx
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Starfield } from './components/Starfield';
 import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
@@ -7,28 +8,50 @@ import { Skills } from './components/Skills';
 import { ResumeSection } from './components/ResumeSection';
 import { Projects } from './components/Projects';
 import { GitHubActivity } from './components/GitHubActivity';
-import { Contact } from './components/Contact';
-import { ScrollToTop } from './components/ScrollToTop';
+import { DemoShell } from './components/labs/DemoShell';
+import { SpkLab } from './components/labs/spk/SpkLab';
+
+// Komponen Pembungkus untuk Portofolio Utama
+const MainPortfolio = () => (
+  <div className="relative z-10">
+    <Navbar />
+    <Hero />
+    <About />
+    <Skills />
+    <Projects />
+    <ResumeSection />
+    <GitHubActivity />
+
+    {/* Footer Sederhana */}
+    <footer className="py-8 text-center text-slate-500 dark:text-slate-400 font-mono text-sm">
+      <p>© {new Date().getFullYear()} Rangga Ivano. Built with React & Tailwind.</p>
+    </footer>
+  </div>
+);
 
 function App() {
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-transparent transition-colors duration-300 text-slate-900 dark:text-slate-100 font-sans antialiased relative z-0">
-      <Starfield />
-      <Navbar />
-      <main>
-        <Hero />
-        <About />
-        <Skills />
-        <ResumeSection />
-        <Projects />
-        <GitHubActivity />
-        <Contact />
-      </main>
-      <footer className="py-8 text-center text-xs font-mono text-blue-400/70 border-t border-blue-500/20 bg-[#050814]/50 backdrop-blur-sm relative z-10">
-        © {new Date().getFullYear()} Rangga Ivano. Built with React, Tailwind CSS, &amp; Laravel. {/* Astro-Telemetry Theme */}
-      </footer>
-      <ScrollToTop />
-    </div>
+    <Router>
+      <div className="min-h-screen bg-slate-50 dark:bg-[#060913] selection:bg-blue-500/30">
+        {/* Latar belakang bintang (Starfield) hanya muncul jika dibutuhkan, Anda bisa memodifikasinya nanti */}
+        <div className="fixed inset-0 z-0 pointer-events-none hidden dark:block">
+          <Starfield />
+        </div>
+
+        <Routes>
+          {/* Rute Utama Portofolio */}
+          <Route path="/" element={<MainPortfolio />} />
+
+          {/* Rute Interactive Labs */}
+          <Route path="/labs" element={<DemoShell />}>
+            <Route index element={<div className="text-center py-20 text-slate-500">Pilih project demo dari halaman portofolio.</div>} />
+
+            {/* INI RUTE BARUNYA */}
+            <Route path="spk" element={<SpkLab />} />
+          </Route>
+        </Routes>
+      </div>
+    </Router>
   );
 }
 
