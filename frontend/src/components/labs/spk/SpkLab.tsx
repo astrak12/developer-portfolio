@@ -33,8 +33,9 @@ export const SpkLab: React.FC = () => {
     const [pengepul] = useState<Pengepul[]>(MOCK_PENGEPUL);
 
     return (
-        <div className="bg-white dark:bg-[#0B1021] rounded-2xl shadow-sm border border-slate-200 dark:border-space-starlight/20 overflow-hidden transition-colors">
-
+        <div className="p-10 bg-red-500 text-white font-bold text-2xl">
+            TEST KONTEN SPK LAB BERHASIL MUNCUL!
+            );
             {/* Header Lab SPK */}
             <div className="bg-gradient-to-r from-blue-600 to-purple-600 dark:from-space-starlight dark:to-space-nebula p-6 sm:p-8 text-white">
                 <div className="flex items-center space-x-3 mb-2">
@@ -58,8 +59,8 @@ export const SpkLab: React.FC = () => {
                         key={tab.id}
                         onClick={() => setActiveTab(tab.id as any)}
                         className={`px-6 py-4 text-sm font-semibold whitespace-nowrap transition-colors ${activeTab === tab.id
-                                ? 'border-b-2 border-blue-600 dark:border-space-starlight text-blue-600 dark:text-space-starlight bg-white dark:bg-[#0B1021]'
-                                : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-space-starlight/5'
+                            ? 'border-b-2 border-blue-600 dark:border-space-starlight text-blue-600 dark:text-space-starlight bg-white dark:bg-[#0B1021]'
+                            : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-space-starlight/5'
                             }`}
                     >
                         {tab.label}
