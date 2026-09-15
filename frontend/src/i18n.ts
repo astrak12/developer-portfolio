@@ -80,7 +80,7 @@ const resources = {
                         desc: "Sistem penunjang keputusan untuk menentukan pengepul terbaik di Bank Sampah Japos Bersih menggunakan metode SAW dan TOPSIS dengan kontrol akses multi-role.",
                         tech: ["Laravel", "PHP", "Tailwind CSS", "SQLite"],
                         githubUrl: "https://github.com/astrak12",
-                        demoUrl: "#"
+                        demoUrl: "/labs/spk"
                     },
                     {
                         title: "Sistem Informasi Bank Sampah Japos",
@@ -202,7 +202,7 @@ const resources = {
                         desc: "A decision support system to determine the best collector in Japos Bersih Waste Bank using SAW and TOPSIS methods with multi-role access control.",
                         tech: ["Laravel", "PHP", "Tailwind CSS", "SQLite"],
                         githubUrl: "https://github.com/astrak12",
-                        demoUrl: "#"
+                        demoUrl: "/labs/spk"
                     },
                     {
                         title: "Japos Waste Bank Info System",
