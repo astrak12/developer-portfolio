@@ -47,6 +47,8 @@ function App() {
             <Route index element={<div className="text-center py-20 text-slate-500">Pilih project demo dari halaman portofolio.</div>} />
             {/* Pastikan rute "spk" memanggil <SpkLab /> */}
             <Route path="spk" element={<SpkLab />} />
+            {/* Fallback route if path doesn't match */}
+            <Route path="*" element={<div className="text-center py-20 text-red-500">Error 404: Route Not Found di dalam Labs</div>} />
           </Route>
         </Routes>
       </div>
