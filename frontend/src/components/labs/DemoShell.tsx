@@ -22,7 +22,7 @@ export const DemoShell: React.FC = () => {
                         <h1 className="font-bold text-lg hidden sm:block">Interactive Labs</h1>
                     </div>
 
-                    {/* Demo Badge & GitHub Link */}
+                    {/* Demo Badge */}
                     <div className="flex items-center space-x-3">
                         <span className="px-3 py-1 bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-400 text-xs font-mono rounded-full border border-amber-200 dark:border-amber-700/50 flex items-center">
                             <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse mr-2"></span>
