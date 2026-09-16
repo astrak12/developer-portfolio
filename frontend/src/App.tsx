@@ -10,6 +10,7 @@ import { Projects } from './components/Projects';
 import { GitHubActivity } from './components/GitHubActivity';
 import { DemoShell } from './components/labs/DemoShell';
 import { SpkLab } from './components/labs/spk/SpkLab';
+import { ObjectDetectionLab } from './components/labs/object-detection/ObjectDetectionLab';
 
 // Komponen Pembungkus untuk Portofolio Utama
 const MainPortfolio = () => (
@@ -46,6 +47,10 @@ function App() {
           <Route path="/labs" element={<DemoShell />}>
             <Route index element={<div className="text-center py-20 text-slate-500">Pilih project demo dari halaman portofolio.</div>} />
             <Route path="spk" element={<SpkLab />} />
+
+            {/* Rute Lab Object Detection ditambahkan di sini agar import di atas tidak error */}
+            <Route path="object-detection" element={<ObjectDetectionLab />} />
+
             {/* Fallback route if path doesn't match */}
             <Route path="*" element={<div className="text-center py-20 text-red-500">Error 404: Route Not Found di dalam Labs</div>} />
           </Route>

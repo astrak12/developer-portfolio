@@ -29,6 +29,10 @@ export const ObjectDetectionLab: React.FC = () => {
         }, 1200);
     };
 
+    const funcItems = t('objectDetectionLab.kebutuhanContent.funcItems', { returnObjects: true }) as string[];
+    const nonFuncItems = t('objectDetectionLab.kebutuhanContent.nonFuncItems', { returnObjects: true }) as string[];
+    const workflowItems = t('objectDetectionLab.perancanganContent.workflowItems', { returnObjects: true }) as string[];
+
     return (
         <div className="bg-white dark:bg-[#0B1021] rounded-2xl shadow-sm border border-slate-200 dark:border-space-starlight/20 overflow-hidden transition-colors relative z-10">
 
@@ -37,20 +41,20 @@ export const ObjectDetectionLab: React.FC = () => {
                 <div className="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
                 <div className="flex items-center space-x-3 mb-2 relative z-10">
                     <span className="text-3xl">👁️‍🗨️</span>
-                    <h2 className="text-2xl font-bold font-sans">Lab: YOLOv8 Object Detection</h2>
+                    <h2 className="text-2xl font-bold font-sans">{t('objectDetectionLab.title')}</h2>
                 </div>
                 <p className="text-white/80 text-sm max-w-2xl relative z-10">
-                    Simulasi interaktif aplikasi pendeteksi objek berbasis model YOLOv8, OpenCV, dan GUI Python[cite: 1].
+                    {t('objectDetectionLab.subtitle')}
                 </p>
             </div>
 
             {/* Navigasi Tab */}
             <div className="flex overflow-x-auto border-b border-slate-200 dark:border-space-starlight/20 bg-slate-50 dark:bg-[#060913]">
                 {[
-                    { id: 'dashboard', label: '📊 Beranda & Abstrak' },
-                    { id: 'kebutuhan', label: '📋 Analisis Kebutuhan' },
-                    { id: 'perancangan', label: '⚙️ Perancangan Sistem' },
-                    { id: 'playground', label: '🚀 Simulasi Lab' },
+                    { id: 'dashboard', label: t('objectDetectionLab.tabs.dashboard') },
+                    { id: 'kebutuhan', label: t('objectDetectionLab.tabs.kebutuhan') },
+                    { id: 'perancangan', label: t('objectDetectionLab.tabs.perancangan') },
+                    { id: 'playground', label: t('objectDetectionLab.tabs.playground') },
                 ].map((tab) => (
                     <button
                         key={tab.id}
@@ -73,30 +77,30 @@ export const ObjectDetectionLab: React.FC = () => {
                     <div className="space-y-8 animate-in fade-in duration-500">
                         <div className="bg-slate-50 dark:bg-[#060913] p-6 sm:p-8 rounded-2xl border border-slate-200 dark:border-space-starlight/20">
                             <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3 flex items-center">
-                                <span className="mr-2">📜</span> Abstrak Sistem
+                                {t('objectDetectionLab.dashboardContent.aboutTitle')}
                             </h3>
                             <p className="text-slate-600 dark:text-slate-400 leading-relaxed text-sm">
-                                Aplikasi pendeteksi objek berbasis model YOLOv8 menggunakan bahasa pemrograman Python dengan antarmuka grafis Tkinter. Mampu melakukan deteksi objek pada gambar maupun video webcam secara real-time serta dilengkapi fitur pembuatan dataset dummy[cite: 1].
+                                {t('objectDetectionLab.dashboardContent.aboutDesc')}
                             </p>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div className="bg-emerald-50/50 dark:bg-emerald-900/10 p-6 rounded-2xl border border-emerald-100 dark:border-emerald-800/30">
-                                <h4 className="text-base font-bold text-emerald-800 dark:text-emerald-300 mb-2">🤖 Model YOLOv8</h4>
+                                <h4 className="text-base font-bold text-emerald-800 dark:text-emerald-300 mb-2">{t('objectDetectionLab.dashboardContent.modelTitle')}</h4>
                                 <p className="text-xs text-emerald-900/70 dark:text-emerald-200/70 leading-relaxed">
-                                    Memanfaatkan library <code className="font-mono">ultralytics</code> untuk akurasi tinggi dan kecepatan inferensi optimal[cite: 1].
+                                    {t('objectDetectionLab.dashboardContent.modelDesc')}
                                 </p>
                             </div>
                             <div className="bg-blue-50/50 dark:bg-blue-900/10 p-6 rounded-2xl border border-blue-100 dark:border-blue-800/30">
-                                <h4 className="text-base font-bold text-blue-800 dark:text-blue-300 mb-2">🖥️ GUI & OpenCV</h4>
+                                <h4 className="text-base font-bold text-blue-800 dark:text-blue-300 mb-2">{t('objectDetectionLab.dashboardContent.guiTitle')}</h4>
                                 <p className="text-xs text-blue-900/70 dark:text-blue-200/70 leading-relaxed">
-                                    Pengolahan citra digital menggunakan OpenCV (<code className="font-mono">cv2</code>) dan Tkinter untuk tata letak jendela[cite: 1].
+                                    {t('objectDetectionLab.dashboardContent.guiDesc')}
                                 </p>
                             </div>
                             <div className="bg-purple-50/50 dark:bg-purple-900/10 p-6 rounded-2xl border border-purple-100 dark:border-purple-800/30">
-                                <h4 className="text-base font-bold text-purple-800 dark:text-purple-300 mb-2">📦 Dataset Generator</h4>
+                                <h4 className="text-base font-bold text-purple-800 dark:text-purple-300 mb-2">{t('objectDetectionLab.dashboardContent.datasetTitle')}</h4>
                                 <p className="text-xs text-purple-900/70 dark:text-purple-200/70 leading-relaxed">
-                                    Fitur pendukung untuk membuat data latih tiruan secara programatik guna eksperimen model[cite: 1].
+                                    {t('objectDetectionLab.dashboardContent.datasetDesc')}
                                 </p>
                             </div>
                         </div>
@@ -106,25 +110,22 @@ export const ObjectDetectionLab: React.FC = () => {
                 {/* TAB 2: ANALISIS KEBUTUHAN */}
                 {activeTab === 'kebutuhan' && (
                     <div className="space-y-6 animate-in fade-in duration-300">
-                        <h3 className="text-lg font-bold text-slate-900 dark:text-white">Analisis Kebutuhan Sistem</h3>
+                        <h3 className="text-lg font-bold text-slate-900 dark:text-white">{t('objectDetectionLab.kebutuhanContent.title')}</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="p-6 bg-slate-50 dark:bg-[#060913] border border-slate-200 dark:border-space-starlight/20 rounded-xl">
-                                <h4 className="font-bold text-emerald-600 dark:text-emerald-400 mb-4">✅ Kebutuhan Fungsional[cite: 1]</h4>
+                                <h4 className="font-bold text-emerald-600 dark:text-emerald-400 mb-4">{t('objectDetectionLab.kebutuhanContent.funcTitle')}</h4>
                                 <ul className="space-y-2 text-xs text-slate-600 dark:text-slate-400 list-disc list-inside leading-relaxed">
-                                    <li>Memuat dan menampilkan berkas gambar untuk deteksi objek[cite: 1].</li>
-                                    <li>Melakukan inferensi deteksi objek pada gambar[cite: 1].</li>
-                                    <li>Mengakses perangkat webcam dan mendeteksi secara real-time[cite: 1].</li>
-                                    <li>Menyimpan tangkapan layar hasil deteksi[cite: 1].</li>
-                                    <li>Membersihkan area kanvas (<code className="font-mono">clear canvas</code>)[cite: 1].</li>
-                                    <li>Membuat dataset dummy untuk latihan pelatihan model[cite: 1].</li>
+                                    {funcItems && funcItems.map((item: string, index: number) => (
+                                        <li key={index}>{item}</li>
+                                    ))}
                                 </ul>
                             </div>
                             <div className="p-6 bg-slate-50 dark:bg-[#060913] border border-slate-200 dark:border-space-starlight/20 rounded-xl">
-                                <h4 className="font-bold text-blue-600 dark:text-blue-400 mb-4">⚙️ Kebutuhan Non-Fungsional[cite: 1]</h4>
+                                <h4 className="font-bold text-blue-600 dark:text-blue-400 mb-4">{t('objectDetectionLab.kebutuhanContent.nonFuncTitle')}</h4>
                                 <ul className="space-y-2 text-xs text-slate-600 dark:text-slate-400 list-disc list-inside leading-relaxed">
-                                    <li>Antarmuka perangkat lunak harus responsif dan mudah digunakan[cite: 1].</li>
-                                    <li>Model deteksi harus stabil dengan pengaturan *threshold* fleksibel[cite: 1].</li>
-                                    <li>Berbasis pustaka *open-source* Python (`ultralytics` dan `Tkinter`)[cite: 1].</li>
+                                    {nonFuncItems && nonFuncItems.map((item: string, index: number) => (
+                                        <li key={index}>{item}</li>
+                                    ))}
                                 </ul>
                             </div>
                         </div>
@@ -134,16 +135,15 @@ export const ObjectDetectionLab: React.FC = () => {
                 {/* TAB 3: PERANCANGAN SISTEM */}
                 {activeTab === 'perancangan' && (
                     <div className="space-y-6 animate-in fade-in duration-300">
-                        <h3 className="text-lg font-bold text-slate-900 dark:text-white">Perancangan & Alur Kerja Sistem</h3>
+                        <h3 className="text-lg font-bold text-slate-900 dark:text-white">{t('objectDetectionLab.perancanganContent.title')}</h3>
                         <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                            Sistem dirancang secara modular yang terdiri dari modul antarmuka GUI, modul pemrosesan model YOLOv8, serta modul generator dataset dummy[cite: 1].
+                            {t('objectDetectionLab.perancanganContent.desc')}
                         </p>
                         <div className="p-6 bg-slate-100 dark:bg-[#060913] rounded-xl border border-slate-200 dark:border-space-starlight/20 font-mono text-xs text-slate-700 dark:text-slate-300 space-y-2">
-                            <p className="font-bold text-emerald-600 dark:text-emerald-400">// Workflow Eksekusi:</p>
-                            <p>1. Pengguna memilih sumber input (Gambar / Webcam / Dataset Dummy).</p>
-                            <p>2. Modul OpenCV membaca frame gambar dan mengirimkannya ke objek <code className="text-blue-500">YOLO('yolov8n.pt')</code>.</p>
-                            <p>3. Model menghasilkan koordinat kotak pembatas (*bounding box*) dan tingkat konfidensi.</p>
-                            <p>4. Hasil render divisualisasikan pada kanvas antarmuka.</p>
+                            <p className="font-bold text-emerald-600 dark:text-emerald-400">{t('objectDetectionLab.perancanganContent.workflowTitle')}</p>
+                            {workflowItems && workflowItems.map((item: string, index: number) => (
+                                <p key={index}>{item}</p>
+                            ))}
                         </div>
                     </div>
                 )}
@@ -162,7 +162,6 @@ export const ObjectDetectionLab: React.FC = () => {
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            {/* Panel Kontrol */}
                             <div className="space-y-4 p-5 bg-slate-50 dark:bg-[#060913] border border-slate-200 dark:border-space-starlight/20 rounded-xl">
                                 <div>
                                     <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Sumber Input</label>
@@ -171,9 +170,9 @@ export const ObjectDetectionLab: React.FC = () => {
                                         onChange={(e) => setSelectedSource(e.target.value)}
                                         className="w-full p-2.5 text-xs font-mono rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white"
                                     >
-                                        <option value="sample-street">Kamera Jalan Raya (Street View)</option>
-                                        <option value="sample-indoor">Ruangan Kerja (Office Setup)</option>
-                                        <option value="dummy-dataset">Dataset Dummy (Shapes)</option>
+                                        <option value="sample-street">Kamera Jalan Raya</option>
+                                        <option value="sample-indoor">Ruangan Kerja</option>
+                                        <option value="dummy-dataset">Dataset Dummy</option>
                                     </select>
                                 </div>
 
@@ -197,7 +196,6 @@ export const ObjectDetectionLab: React.FC = () => {
                                 </button>
                             </div>
 
-                            {/* Panel Canvas / Output */}
                             <div className="md:col-span-2 p-6 bg-slate-900 rounded-xl border border-slate-800 flex flex-col justify-between min-h-[280px]">
                                 <div className="space-y-3">
                                     <div className="flex justify-between items-center text-xs font-mono text-slate-400 border-b border-slate-800 pb-2">
@@ -207,7 +205,7 @@ export const ObjectDetectionLab: React.FC = () => {
 
                                     <div className="p-4 bg-black/50 rounded-lg border border-slate-800 font-mono text-xs text-emerald-400 min-h-[120px]">
                                         {isProcessing ? (
-                                            <p className="animate-pulse">⏳ Memproses frame gambar melalui YOLOv8 neural network...</p>
+                                            <p className="animate-pulse">⏳ Memproses frame gambar melalui neural network...</p>
                                         ) : detectedObjects.length > 0 ? (
                                             <div className="space-y-2">
                                                 <p className="text-slate-400">{simulationLog}</p>
@@ -224,10 +222,6 @@ export const ObjectDetectionLab: React.FC = () => {
                                             <p className="text-slate-500">Klik tombol "Jalankan Deteksi" untuk memulai simulasi pemrosesan objek.</p>
                                         )}
                                     </div>
-                                </div>
-
-                                <div className="text-[11px] font-mono text-slate-500 pt-3 border-t border-slate-800/60">
-                                    * Modul Python & Tkinter GUI diimplementasikan secara programatik sesuai spesifikasi laporan proyek[cite: 1].
                                 </div>
                             </div>
                         </div>
