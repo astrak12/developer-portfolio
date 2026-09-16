@@ -12,6 +12,8 @@ interface Kriteria {
 interface Pengepul {
     id: string;
     nama: string;
+    deskripsi: string;
+    lokasi: string;
 }
 
 interface NilaiEvaluasi {
@@ -20,9 +22,9 @@ interface NilaiEvaluasi {
 }
 
 const MOCK_PENGEPUL: Pengepul[] = [
-    { id: 'p1', nama: 'Pengepul A (Bapak Budi)' },
-    { id: 'p2', nama: 'Pengepul B (Ibu Siti)' },
-    { id: 'p3', nama: 'Pengepul C (CV. Sampah Berkah)' },
+    { id: 'p1', nama: 'Pengepul A (Bapak Budi)', deskripsi: 'Pengepul skala menengah dengan armada pickup.', lokasi: 'Tangerang Selatan' },
+    { id: 'p2', nama: 'Pengepul B (Ibu Siti)', deskripsi: 'Pengepul lokal spesialis kertas dan plastik.', lokasi: 'Pondok Aren' },
+    { id: 'p3', nama: 'Pengepul C (CV. Sampah Berkah)', deskripsi: 'Perusahaan daur ulang dengan kapasitas besar.', lokasi: 'Ciledug' },
 ];
 
 const MOCK_NILAI: NilaiEvaluasi[] = [
@@ -31,58 +33,127 @@ const MOCK_NILAI: NilaiEvaluasi[] = [
     { pengepulId: 'p3', nilai: { k1: 70, k2: 2, k3: 150, k4: 90 } },
 ];
 
-export const SpkLab: React.FC = () => {
+// Kamus Terjemahan Standar untuk Lab SPK (Standar Proyek Berikutnya)
+const LAB_TRANSLATIONS = {
+    id: {
+        title: "Lab: SPK Bank Sampah Japos",
+        subtitle: "Eksperimen interaktif Sistem Penunjang Keputusan menggunakan metode SAW dan TOPSIS secara real-time.",
+        tabs: {
+            dashboard: "📊 Beranda Lab",
+            kriteria: "🎛️ Atur Kriteria",
+            pengepul: "👥 Data Pengepul",
+            perhitungan: "⚙️ Kalkulasi & Hasil"
+        },
+        dashboardContent: {
+            aboutTitle: "🎯 Tentang Sistem Ini",
+            aboutDesc: "Modul ini adalah ekstraksi logika engine dari proyek SPK Bank Sampah Japos Bersih 09. Sistem ini dirancang untuk mengatasi masalah subjektivitas dalam pemilihan mitra pengepul sampah secara objektif.",
+            sawTitle: "Metode SAW",
+            sawDesc: "Simple Additive Weighting (SAW) bekerja dengan mencari penjumlahan terbobot dari rating kinerja pada setiap alternatif di semua atribut.",
+            topsisTitle: "Metode TOPSIS",
+            topsisDesc: "Technique for Order of Preference by Similarity to Ideal Solution didasarkan pada konsep jarak terdekat dengan solusi ideal positif dan terjauh dari negatif.",
+            techTitle: "Teknologi Simulasi Lab",
+            techNote: "*Catatan: Proyek asli dibangun menggunakan tumpukan Laravel, PHP, dan SQLite."
+        },
+        criteriaContent: {
+            title: "Pengaturan Bobot Kriteria",
+            desc: "Geser slider di bawah ini untuk mengubah bobot preferensi, lalu lihat perubahannya di tab Kalkulasi!"
+        },
+        pengepulContent: {
+            title: "Data Alternatif Pengepul"
+        },
+        resultContent: {
+            title: "Hasil Akhir & Ranking",
+            desc: "Pengepul dengan skor (V) tertinggi direkomendasikan sebagai pilihan terbaik.",
+            tableRank: "Rank",
+            tableName: "Nama Pengepul",
+            tableScore: "Skor (V)"
+        }
+    },
+    en: {
+        title: "Lab: Japos Waste Bank DSS",
+        subtitle: "Interactive Decision Support System experiment using SAW and TOPSIS methods in real-time.",
+        tabs: {
+            dashboard: "📊 Lab Home",
+            kriteria: "🎛️ Adjust Criteria",
+            pengepul: "👥 Collectors",
+            perhitungan: "⚙️ Calculation & Results"
+        },
+        dashboardContent: {
+            aboutTitle: "🎯 About This System",
+            aboutDesc: "This module extracts the engine logic from the Japos Bersih 09 Waste Bank DSS project, designed to eliminate subjectivity in selecting waste collector partners.",
+            sawTitle: "SAW Method",
+            sawDesc: "Simple Additive Weighting (SAW) finds the weighted sum of performance ratings for each alternative across all attributes.",
+            topsisTitle: "TOPSIS Method",
+            topsisDesc: "Technique for Order of Preference by Similarity to Ideal Solution is based on the concept of shortest distance to the positive-ideal solution.",
+            techTitle: "Lab Simulation Stack",
+            techNote: "*Note: The original project was built using Laravel, PHP, and SQLite."
+        },
+        criteriaContent: {
+            title: "Criteria Weight Settings",
+            desc: "Drag the sliders below to adjust preference weights, then see the changes in the Calculation tab!"
+        },
+        pengepulContent: {
+            title: "Collector Alternatives Data"
+        },
+        resultContent: {
+            title: "Final Results & Ranking",
+            desc: "Collectors with the highest (V) score are recommended as the best choice.",
+            tableRank: "Rank",
+            tableName: "Collector Name",
+            tableScore: "Score (V)"
+        }
+    }
+};
+
+interface SpkLabProps {
+    lang?: 'id' | 'en'; // Mendukung props bahasa dari portofolio utama
+}
+
+export const SpkLab: React.FC<SpkLabProps> = ({ lang = 'id' }) => {
     const [activeTab, setActiveTab] = useState<'dashboard' | 'kriteria' | 'pengepul' | 'perhitungan'>('dashboard');
     const [activeMethod, setActiveMethod] = useState<'SAW' | 'TOPSIS'>('SAW');
 
+    // Ambil kamus bahasa yang sesuai, fallback ke 'id' jika tidak ada
+    const t = LAB_TRANSLATIONS[lang] || LAB_TRANSLATIONS.id;
+
     const [pengepul] = useState<Pengepul[]>(MOCK_PENGEPUL);
     const [kriteria, setKriteria] = useState<Kriteria[]>([
-        { id: 'k1', kode: 'C1', nama: 'Harga Beli', atribut: 'benefit', bobot: 30 },
-        { id: 'k2', kode: 'C2', nama: 'Jarak Lokasi', atribut: 'cost', bobot: 20 },
-        { id: 'k3', kode: 'C3', nama: 'Kapasitas Tampung', atribut: 'benefit', bobot: 25 },
-        { id: 'k4', kode: 'C4', nama: 'Pelayanan', atribut: 'benefit', bobot: 25 },
+        { id: 'k1', kode: 'C1', nama: 'Harga Beli / Purchase Price', atribut: 'benefit', bobot: 30 },
+        { id: 'k2', kode: 'C2', nama: 'Jarak Lokasi / Distance', atribut: 'cost', bobot: 20 },
+        { id: 'k3', kode: 'C3', nama: 'Kapasitas / Capacity', atribut: 'benefit', bobot: 25 },
+        { id: 'k4', kode: 'C4', nama: 'Pelayanan / Service', atribut: 'benefit', bobot: 25 },
     ]);
 
     const handleUbahBobot = (id: string, bobotBaru: number) => {
         setKriteria(prev => prev.map(k => k.id === id ? { ...k, bobot: bobotBaru } : k));
     };
 
-    // --- ENGINE 1: SAW (Simple Additive Weighting) ---
+    // Engine SAW & TOPSIS Tetap Sama & Konsisten
     const hasilSAW = useMemo(() => {
         const maxMinPerKriteria: Record<string, { max: number, min: number }> = {};
-
         kriteria.forEach(k => {
             const semuaNilai = MOCK_NILAI.map(n => n.nilai[k.id] || 0);
-            maxMinPerKriteria[k.id] = {
-                max: Math.max(...semuaNilai),
-                min: Math.min(...semuaNilai)
-            };
+            maxMinPerKriteria[k.id] = { max: Math.max(...semuaNilai), min: Math.min(...semuaNilai) };
         });
 
         const hasil = pengepul.map(p => {
             const dataNilai = MOCK_NILAI.find(n => n.pengepulId === p.id);
             let totalSkor = 0;
-
             kriteria.forEach(k => {
                 const nilaiAsli = dataNilai?.nilai[k.id] || 0;
                 let nilaiNormalisasi = 0;
-
                 if (k.atribut === 'benefit') {
                     nilaiNormalisasi = maxMinPerKriteria[k.id].max === 0 ? 0 : nilaiAsli / maxMinPerKriteria[k.id].max;
                 } else {
                     nilaiNormalisasi = nilaiAsli === 0 ? 0 : maxMinPerKriteria[k.id].min / nilaiAsli;
                 }
-
                 totalSkor += nilaiNormalisasi * (k.bobot / 100);
             });
-
             return { ...p, totalSkor };
         });
-
         return hasil.sort((a, b) => b.totalSkor - a.totalSkor);
     }, [kriteria, pengepul]);
 
-    // --- ENGINE 2: TOPSIS (Technique for Order of Preference by Similarity to Ideal Solution) ---
     const hasilTOPSIS = useMemo(() => {
         const pembagiPerKriteria: Record<string, number> = {};
         kriteria.forEach(k => {
@@ -106,60 +177,51 @@ export const SpkLab: React.FC = () => {
         kriteria.forEach(k => {
             const semuaY = matriksY.map(m => m.y[k.id]);
             if (k.atribut === 'benefit') {
-                idealPositif[k.id] = Math.max(...semuaY);
-                idealNegatif[k.id] = Math.min(...semuaY);
+                idealPositif[k.id] = Math.max(...semuaY); idealNegatif[k.id] = Math.min(...semuaY);
             } else {
-                idealPositif[k.id] = Math.min(...semuaY);
-                idealNegatif[k.id] = Math.max(...semuaY);
+                idealPositif[k.id] = Math.min(...semuaY); idealNegatif[k.id] = Math.max(...semuaY);
             }
         });
 
         const hasil = pengepul.map(p => {
             const yPengepul = matriksY.find(m => m.pengepulId === p.id)?.y || {};
-            let dPlusSq = 0;
-            let dMinSq = 0;
-
+            let dPlusSq = 0; let dMinSq = 0;
             kriteria.forEach(k => {
                 const y = yPengepul[k.id] || 0;
                 dPlusSq += Math.pow(y - idealPositif[k.id], 2);
                 dMinSq += Math.pow(y - idealNegatif[k.id], 2);
             });
-
-            const dPlus = Math.sqrt(dPlusSq);
-            const dMin = Math.sqrt(dMinSq);
-
+            const dPlus = Math.sqrt(dPlusSq); const dMin = Math.sqrt(dMinSq);
             const totalSkor = (dMin + dPlus) === 0 ? 0 : dMin / (dMin + dPlus);
-
             return { ...p, totalSkor };
         });
-
         return hasil.sort((a, b) => b.totalSkor - a.totalSkor);
     }, [kriteria, pengepul]);
 
-    // Tentukan data mana yang akan di-render di tabel
     const hasilAktif = activeMethod === 'SAW' ? hasilSAW : hasilTOPSIS;
 
     return (
         <div className="bg-white dark:bg-[#0B1021] rounded-2xl shadow-sm border border-slate-200 dark:border-space-starlight/20 overflow-hidden transition-colors relative z-10">
 
             {/* Header Lab */}
-            <div className="bg-gradient-to-r from-blue-600 to-purple-600 dark:from-space-starlight dark:to-space-nebula p-6 sm:p-8 text-white">
-                <div className="flex items-center space-x-3 mb-2">
+            <div className="bg-gradient-to-r from-blue-600 to-purple-600 dark:from-space-starlight dark:to-space-nebula p-6 sm:p-8 text-white relative overflow-hidden">
+                <div className="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
+                <div className="flex items-center space-x-3 mb-2 relative z-10">
                     <span className="text-3xl">♻️</span>
-                    <h2 className="text-2xl font-bold font-sans">Lab: SPK Bank Sampah Japos</h2>
+                    <h2 className="text-2xl font-bold font-sans">{t.title}</h2>
                 </div>
-                <p className="text-white/80 text-sm max-w-2xl">
-                    Simulasi Sistem Penunjang Keputusan interaktif menggunakan metode <strong>SAW dan TOPSIS</strong>.
+                <p className="text-white/80 text-sm max-w-2xl relative z-10">
+                    {t.subtitle}
                 </p>
             </div>
 
             {/* Navigasi Tab */}
             <div className="flex overflow-x-auto border-b border-slate-200 dark:border-space-starlight/20 bg-slate-50 dark:bg-[#060913]">
                 {[
-                    { id: 'dashboard', label: '📊 Dashboard' },
-                    { id: 'kriteria', label: '🎛️ Atur Kriteria' },
-                    { id: 'pengepul', label: '👥 Data Pengepul' },
-                    { id: 'perhitungan', label: '⚙️ Kalkulasi & Hasil' },
+                    { id: 'dashboard', label: t.tabs.dashboard },
+                    { id: 'kriteria', label: t.tabs.kriteria },
+                    { id: 'pengepul', label: t.tabs.pengepul },
+                    { id: 'perhitungan', label: t.tabs.perhitungan },
                 ].map((tab) => (
                     <button
                         key={tab.id}
@@ -175,37 +237,65 @@ export const SpkLab: React.FC = () => {
             </div>
 
             {/* Area Konten Dinamis */}
-            <div className="p-6 sm:p-8 min-h-[400px]">
+            <div className="p-6 sm:p-8 min-h-[500px]">
+
                 {activeTab === 'dashboard' && (
-                    <div className="space-y-6">
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                            <div className="p-4 rounded-xl bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-800/30">
-                                <p className="text-sm text-blue-600 dark:text-blue-400 font-semibold mb-1">Total Kriteria</p>
-                                <p className="text-3xl font-bold text-slate-900 dark:text-white">{kriteria.length}</p>
+                    <div className="space-y-8 animate-in fade-in duration-500">
+                        <div className="bg-slate-50 dark:bg-[#060913] p-6 sm:p-8 rounded-2xl border border-slate-200 dark:border-space-starlight/20">
+                            <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3 flex items-center">
+                                <span className="mr-2">🎯</span> {t.dashboardContent.aboutTitle}
+                            </h3>
+                            <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
+                                {t.dashboardContent.aboutDesc}
+                            </p>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="bg-blue-50/50 dark:bg-blue-900/10 p-6 rounded-2xl border border-blue-100 dark:border-blue-800/30">
+                                <div className="w-10 h-10 bg-blue-100 dark:bg-blue-800/50 text-blue-600 dark:text-blue-300 rounded-lg flex items-center justify-center font-bold mb-4 shadow-sm">1</div>
+                                <h4 className="text-lg font-bold text-blue-800 dark:text-blue-300 mb-2">{t.dashboardContent.sawTitle}</h4>
+                                <p className="text-sm text-blue-900/70 dark:text-blue-200/70 leading-relaxed">
+                                    {t.dashboardContent.sawDesc}
+                                </p>
                             </div>
-                            <div className="p-4 rounded-xl bg-purple-50 dark:bg-purple-900/10 border border-purple-100 dark:border-purple-800/30">
-                                <p className="text-sm text-purple-600 dark:text-purple-400 font-semibold mb-1">Total Alternatif</p>
-                                <p className="text-3xl font-bold text-slate-900 dark:text-white">{pengepul.length}</p>
+                            <div className="bg-purple-50/50 dark:bg-purple-900/10 p-6 rounded-2xl border border-purple-100 dark:border-purple-800/30">
+                                <div className="w-10 h-10 bg-purple-100 dark:bg-purple-800/50 text-purple-600 dark:text-purple-300 rounded-lg flex items-center justify-center font-bold mb-4 shadow-sm">2</div>
+                                <h4 className="text-lg font-bold text-purple-800 dark:text-purple-300 mb-2">{t.dashboardContent.topsisTitle}</h4>
+                                <p className="text-sm text-purple-900/70 dark:text-purple-200/70 leading-relaxed">
+                                    {t.dashboardContent.topsisDesc}
+                                </p>
                             </div>
-                            <div className="p-4 rounded-xl bg-green-50 dark:bg-green-900/10 border border-green-100 dark:border-green-800/30">
-                                <p className="text-sm text-green-600 dark:text-green-400 font-semibold mb-1">Mesin SPK Aktif</p>
-                                <p className="text-xl font-bold text-slate-900 dark:text-white mt-2">SAW & TOPSIS 🟢</p>
+                        </div>
+
+                        <div>
+                            <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4 flex items-center">
+                                <span className="mr-2">⚡</span> {t.dashboardContent.techTitle}
+                            </h3>
+                            <div className="flex flex-wrap gap-3">
+                                {['React.js', 'TypeScript', 'Tailwind CSS', 'Multi-Method Engine'].map(tech => (
+                                    <span key={tech} className="px-4 py-2 bg-white dark:bg-[#060913] border border-slate-200 dark:border-space-starlight/30 rounded-lg text-sm font-semibold text-slate-700 dark:text-slate-300 shadow-sm">
+                                        {tech}
+                                    </span>
+                                ))}
                             </div>
+                            <p className="text-xs text-slate-500 mt-3 italic">
+                                {t.dashboardContent.techNote}
+                            </p>
                         </div>
                     </div>
                 )}
 
                 {activeTab === 'kriteria' && (
-                    <div className="space-y-4">
+                    <div className="space-y-4 animate-in fade-in duration-300">
                         <div>
-                            <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1">Pengaturan Bobot Kriteria</h3>
+                            <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1">{t.criteriaContent.title}</h3>
                             <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
-                                Geser *slider* di bawah ini untuk mengubah bobot preferensi, lalu lihat perubahannya di tab Kalkulasi!
+                                {t.criteriaContent.desc}
                             </p>
                         </div>
                         <ul className="space-y-4">
                             {kriteria.map(k => (
-                                <li key={k.id} className="p-4 bg-slate-50 dark:bg-[#060913] border border-slate-200 dark:border-space-starlight/20 rounded-xl">
+                                <li key={k.id} className="p-4 bg-slate-50 dark:bg-[#060913] border border-slate-200 dark:border-space-starlight/20 rounded-xl hover:border-blue-300 dark:hover:border-space-starlight transition-colors">
                                     <div className="flex justify-between items-center mb-3">
                                         <span className="font-mono font-bold text-slate-700 dark:text-slate-300">[{k.kode}] {k.nama}</span>
                                         <span className={`text-xs px-2 py-1 rounded-md font-semibold ${k.atribut === 'benefit' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'}`}>
@@ -214,10 +304,7 @@ export const SpkLab: React.FC = () => {
                                     </div>
                                     <div className="flex items-center space-x-4">
                                         <input
-                                            type="range"
-                                            min="0"
-                                            max="100"
-                                            value={k.bobot}
+                                            type="range" min="0" max="100" value={k.bobot}
                                             onChange={(e) => handleUbahBobot(k.id, Number(e.target.value))}
                                             className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-600"
                                         />
@@ -232,53 +319,61 @@ export const SpkLab: React.FC = () => {
                 )}
 
                 {activeTab === 'pengepul' && (
-                    <div>
-                        <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">Data Alternatif Pengepul</h3>
-                        <ul className="space-y-2">
+                    <div className="animate-in fade-in duration-300">
+                        <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">{t.pengepulContent.title}</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {pengepul.map(p => (
-                                <li key={p.id} className="p-3 bg-slate-50 dark:bg-[#060913] border border-slate-200 dark:border-space-starlight/20 rounded-lg text-slate-700 dark:text-slate-300">
-                                    {p.nama}
-                                </li>
+                                <div key={p.id} className="p-5 bg-slate-50 dark:bg-[#060913] border border-slate-200 dark:border-space-starlight/20 rounded-xl flex flex-col justify-between">
+                                    <div>
+                                        <div className="flex justify-between items-start mb-2">
+                                            <h4 className="font-bold text-slate-800 dark:text-slate-200 text-lg">{p.nama}</h4>
+                                            <span className="text-xs bg-slate-200 dark:bg-space-starlight/30 text-slate-600 dark:text-slate-400 px-2 py-1 rounded-full">{p.id.toUpperCase()}</span>
+                                        </div>
+                                        <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">{p.deskripsi}</p>
+                                    </div>
+                                    <div className="flex items-center text-xs font-semibold text-slate-500 dark:text-slate-400 bg-white dark:bg-[#0B1021] w-max px-3 py-1.5 rounded-lg border border-slate-200 dark:border-space-starlight/20">
+                                        📍 {p.lokasi}
+                                    </div>
+                                </div>
                             ))}
-                        </ul>
+                        </div>
                     </div>
                 )}
 
                 {activeTab === 'perhitungan' && (
-                    <div className="space-y-6">
+                    <div className="space-y-6 animate-in fade-in duration-300">
                         <div>
                             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-6 space-y-4 sm:space-y-0">
                                 <div>
-                                    <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Hasil Akhir & Ranking</h3>
+                                    <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">{t.resultContent.title}</h3>
                                     <p className="text-sm text-slate-500">
-                                        Pengepul dengan skor <strong>(V)</strong> tertinggi direkomendasikan sebagai pilihan terbaik.
+                                        {t.resultContent.desc}
                                     </p>
                                 </div>
 
-                                {/* Toggle Metode (SAW / TOPSIS) */}
                                 <div className="flex bg-slate-100 dark:bg-[#060913] p-1 rounded-lg border border-slate-200 dark:border-space-starlight/20">
                                     <button
                                         onClick={() => setActiveMethod('SAW')}
                                         className={`px-6 py-2 text-sm font-bold rounded-md transition-all duration-300 ${activeMethod === 'SAW' ? 'bg-white dark:bg-space-starlight/20 text-blue-600 dark:text-blue-400 shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
                                     >
-                                        Metode SAW
+                                        SAW Method
                                     </button>
                                     <button
                                         onClick={() => setActiveMethod('TOPSIS')}
                                         className={`px-6 py-2 text-sm font-bold rounded-md transition-all duration-300 ${activeMethod === 'TOPSIS' ? 'bg-white dark:bg-space-starlight/20 text-purple-600 dark:text-purple-400 shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
                                     >
-                                        Metode TOPSIS
+                                        TOPSIS Method
                                     </button>
                                 </div>
                             </div>
 
-                            <div className="overflow-x-auto border border-slate-200 dark:border-space-starlight/20 rounded-lg">
+                            <div className="overflow-x-auto border border-slate-200 dark:border-space-starlight/20 rounded-xl shadow-sm">
                                 <table className="w-full text-left text-sm">
                                     <thead className="bg-slate-100 dark:bg-[#060913] text-slate-600 dark:text-slate-400">
                                         <tr>
-                                            <th className="p-4 border-b border-slate-200 dark:border-space-starlight/20">Rank</th>
-                                            <th className="p-4 border-b border-slate-200 dark:border-space-starlight/20">Nama Pengepul</th>
-                                            <th className="p-4 border-b border-slate-200 dark:border-space-starlight/20 text-right">Skor (V)</th>
+                                            <th className="p-4 border-b border-slate-200 dark:border-space-starlight/20">{t.resultContent.tableRank}</th>
+                                            <th className="p-4 border-b border-slate-200 dark:border-space-starlight/20">{t.resultContent.tableName}</th>
+                                            <th className="p-4 border-b border-slate-200 dark:border-space-starlight/20 text-right">{t.resultContent.tableScore}</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-slate-200 dark:divide-space-starlight/20">
