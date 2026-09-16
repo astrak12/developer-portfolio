@@ -122,6 +122,41 @@ const resources = {
                 githubAction: "Jelajahi Repositori",
                 location: "Tangerang Selatan, Indonesia",
                 availability: "Tersedia untuk proyek full-stack & magang"
+            },
+            // Kamus Terjemahan Standar untuk Lab SPK
+            spkLab: {
+                title: "Lab: SPK Bank Sampah Japos",
+                subtitle: "Eksperimen interaktif Sistem Penunjang Keputusan menggunakan metode SAW dan TOPSIS secara real-time.",
+                tabs: {
+                    dashboard: "📊 Beranda Lab",
+                    kriteria: "🎛️ Atur Kriteria",
+                    pengepul: "👥 Data Pengepul",
+                    perhitungan: "⚙️ Kalkulasi & Hasil"
+                },
+                dashboardContent: {
+                    aboutTitle: "🎯 Tentang Sistem Ini",
+                    aboutDesc: "Modul ini adalah ekstraksi logika engine dari proyek SPK Bank Sampah Japos Bersih 09. Sistem ini dirancang untuk mengatasi masalah subjektivitas dalam pemilihan mitra pengepul sampah secara objektif.",
+                    sawTitle: "Metode SAW",
+                    sawDesc: "Simple Additive Weighting (SAW) bekerja dengan mencari penjumlahan terbobot dari rating kinerja pada setiap alternatif di semua atribut.",
+                    topsisTitle: "Metode TOPSIS",
+                    topsisDesc: "Technique for Order of Preference by Similarity to Ideal Solution (TOPSIS) didasarkan pada konsep jarak terdekat dengan solusi ideal positif dan terjauh dari negatif.",
+                    techTitle: "Teknologi Simulasi Lab",
+                    techNote: "*Catatan: Proyek asli SPK Bank Sampah Japos dibangun menggunakan tumpukan Laravel, PHP, dan SQLite."
+                },
+                criteriaContent: {
+                    title: "Pengaturan Bobot Kriteria",
+                    desc: "Geser slider di bawah ini untuk mengubah bobot preferensi, lalu lihat perubahannya di tab Kalkulasi!"
+                },
+                pengepulContent: {
+                    title: "Data Alternatif Pengepul"
+                },
+                resultContent: {
+                    title: "Hasil Akhir & Ranking",
+                    desc: "Pengepul dengan skor (V) tertinggi direkomendasikan sebagai pilihan terbaik.",
+                    tableRank: "Rank",
+                    tableName: "Nama Pengepul",
+                    tableScore: "Skor (V)"
+                }
             }
         }
     },
@@ -244,6 +279,41 @@ const resources = {
                 githubAction: "Explore Repositories",
                 location: "South Tangerang, Indonesia",
                 availability: "Available for full-stack projects & internships"
+            },
+            // Lab SPK Translation Dictionary (English)
+            spkLab: {
+                title: "Lab: Japos Waste Bank DSS",
+                subtitle: "Interactive Decision Support System experiment using SAW and TOPSIS methods in real-time.",
+                tabs: {
+                    dashboard: "📊 Lab Home",
+                    kriteria: "🎛️ Adjust Criteria",
+                    pengepul: "👥 Collectors",
+                    perhitungan: "⚙️ Calculation & Results"
+                },
+                dashboardContent: {
+                    aboutTitle: "🎯 About This System",
+                    aboutDesc: "This module extracts the engine logic from the Japos Bersih 09 Waste Bank DSS project, designed to eliminate subjectivity in selecting waste collector partners.",
+                    sawTitle: "SAW Method",
+                    sawDesc: "Simple Additive Weighting (SAW) finds the weighted sum of performance ratings for each alternative across all attributes.",
+                    topsisTitle: "TOPSIS Method",
+                    topsisDesc: "Technique for Order of Preference by Similarity to Ideal Solution is based on the concept of shortest distance to the positive-ideal solution.",
+                    techTitle: "Lab Simulation Stack",
+                    techNote: "*Note: The original project was built using Laravel, PHP, and SQLite."
+                },
+                criteriaContent: {
+                    title: "Criteria Weight Settings",
+                    desc: "Drag the sliders below to adjust preference weights, then see the changes in the Calculation tab!"
+                },
+                pengepulContent: {
+                    title: "Collector Alternatives Data"
+                },
+                resultContent: {
+                    title: "Final Results & Ranking",
+                    desc: "Collectors with the highest (V) score are recommended as the best choice.",
+                    tableRank: "Rank",
+                    tableName: "Collector Name",
+                    tableScore: "Score (V)"
+                }
             }
         }
     }

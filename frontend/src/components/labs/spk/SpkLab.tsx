@@ -1,5 +1,6 @@
 // frontend/src/components/labs/spk/SpkLab.tsx
 import React, { useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface Kriteria {
     id: string;
@@ -33,102 +34,25 @@ const MOCK_NILAI: NilaiEvaluasi[] = [
     { pengepulId: 'p3', nilai: { k1: 70, k2: 2, k3: 150, k4: 90 } },
 ];
 
-// Kamus Terjemahan Standar untuk Lab SPK (Standar Proyek Berikutnya)
-const LAB_TRANSLATIONS = {
-    id: {
-        title: "Lab: SPK Bank Sampah Japos",
-        subtitle: "Eksperimen interaktif Sistem Penunjang Keputusan menggunakan metode SAW dan TOPSIS secara real-time.",
-        tabs: {
-            dashboard: "📊 Beranda Lab",
-            kriteria: "🎛️ Atur Kriteria",
-            pengepul: "👥 Data Pengepul",
-            perhitungan: "⚙️ Kalkulasi & Hasil"
-        },
-        dashboardContent: {
-            aboutTitle: "🎯 Tentang Sistem Ini",
-            aboutDesc: "Modul ini adalah ekstraksi logika engine dari proyek SPK Bank Sampah Japos Bersih 09. Sistem ini dirancang untuk mengatasi masalah subjektivitas dalam pemilihan mitra pengepul sampah secara objektif.",
-            sawTitle: "Metode SAW",
-            sawDesc: "Simple Additive Weighting (SAW) bekerja dengan mencari penjumlahan terbobot dari rating kinerja pada setiap alternatif di semua atribut.",
-            topsisTitle: "Metode TOPSIS",
-            topsisDesc: "Technique for Order of Preference by Similarity to Ideal Solution didasarkan pada konsep jarak terdekat dengan solusi ideal positif dan terjauh dari negatif.",
-            techTitle: "Teknologi Simulasi Lab",
-            techNote: "*Catatan: Proyek asli dibangun menggunakan tumpukan Laravel, PHP, dan SQLite."
-        },
-        criteriaContent: {
-            title: "Pengaturan Bobot Kriteria",
-            desc: "Geser slider di bawah ini untuk mengubah bobot preferensi, lalu lihat perubahannya di tab Kalkulasi!"
-        },
-        pengepulContent: {
-            title: "Data Alternatif Pengepul"
-        },
-        resultContent: {
-            title: "Hasil Akhir & Ranking",
-            desc: "Pengepul dengan skor (V) tertinggi direkomendasikan sebagai pilihan terbaik.",
-            tableRank: "Rank",
-            tableName: "Nama Pengepul",
-            tableScore: "Skor (V)"
-        }
-    },
-    en: {
-        title: "Lab: Japos Waste Bank DSS",
-        subtitle: "Interactive Decision Support System experiment using SAW and TOPSIS methods in real-time.",
-        tabs: {
-            dashboard: "📊 Lab Home",
-            kriteria: "🎛️ Adjust Criteria",
-            pengepul: "👥 Collectors",
-            perhitungan: "⚙️ Calculation & Results"
-        },
-        dashboardContent: {
-            aboutTitle: "🎯 About This System",
-            aboutDesc: "This module extracts the engine logic from the Japos Bersih 09 Waste Bank DSS project, designed to eliminate subjectivity in selecting waste collector partners.",
-            sawTitle: "SAW Method",
-            sawDesc: "Simple Additive Weighting (SAW) finds the weighted sum of performance ratings for each alternative across all attributes.",
-            topsisTitle: "TOPSIS Method",
-            topsisDesc: "Technique for Order of Preference by Similarity to Ideal Solution is based on the concept of shortest distance to the positive-ideal solution.",
-            techTitle: "Lab Simulation Stack",
-            techNote: "*Note: The original project was built using Laravel, PHP, and SQLite."
-        },
-        criteriaContent: {
-            title: "Criteria Weight Settings",
-            desc: "Drag the sliders below to adjust preference weights, then see the changes in the Calculation tab!"
-        },
-        pengepulContent: {
-            title: "Collector Alternatives Data"
-        },
-        resultContent: {
-            title: "Final Results & Ranking",
-            desc: "Collectors with the highest (V) score are recommended as the best choice.",
-            tableRank: "Rank",
-            tableName: "Collector Name",
-            tableScore: "Score (V)"
-        }
-    }
-};
+export const SpkLab: React.FC = () => {
+    const { t } = useTranslation();
 
-interface SpkLabProps {
-    lang?: 'id' | 'en'; // Mendukung props bahasa dari portofolio utama
-}
-
-export const SpkLab: React.FC<SpkLabProps> = ({ lang = 'id' }) => {
     const [activeTab, setActiveTab] = useState<'dashboard' | 'kriteria' | 'pengepul' | 'perhitungan'>('dashboard');
     const [activeMethod, setActiveMethod] = useState<'SAW' | 'TOPSIS'>('SAW');
-
-    // Ambil kamus bahasa yang sesuai, fallback ke 'id' jika tidak ada
-    const t = LAB_TRANSLATIONS[lang] || LAB_TRANSLATIONS.id;
 
     const [pengepul] = useState<Pengepul[]>(MOCK_PENGEPUL);
     const [kriteria, setKriteria] = useState<Kriteria[]>([
         { id: 'k1', kode: 'C1', nama: 'Harga Beli / Purchase Price', atribut: 'benefit', bobot: 30 },
         { id: 'k2', kode: 'C2', nama: 'Jarak Lokasi / Distance', atribut: 'cost', bobot: 20 },
-        { id: 'k3', kode: 'C3', nama: 'Kapasitas / Capacity', atribut: 'benefit', bobot: 25 },
-        { id: 'k4', kode: 'C4', nama: 'Pelayanan / Service', atribut: 'benefit', bobot: 25 },
+        { id: 'k3', kode: 'C3', nama: 'Kapasitas Tampung / Capacity', atribut: 'benefit', bobot: 25 },
+        { id: 'k4', kode: 'C4', nama: 'Pelayanan / Service Quality', atribut: 'benefit', bobot: 25 },
     ]);
 
     const handleUbahBobot = (id: string, bobotBaru: number) => {
         setKriteria(prev => prev.map(k => k.id === id ? { ...k, bobot: bobotBaru } : k));
     };
 
-    // Engine SAW & TOPSIS Tetap Sama & Konsisten
+    // Engine SAW
     const hasilSAW = useMemo(() => {
         const maxMinPerKriteria: Record<string, { max: number, min: number }> = {};
         kriteria.forEach(k => {
@@ -154,6 +78,7 @@ export const SpkLab: React.FC<SpkLabProps> = ({ lang = 'id' }) => {
         return hasil.sort((a, b) => b.totalSkor - a.totalSkor);
     }, [kriteria, pengepul]);
 
+    // Engine TOPSIS
     const hasilTOPSIS = useMemo(() => {
         const pembagiPerKriteria: Record<string, number> = {};
         kriteria.forEach(k => {
@@ -208,27 +133,27 @@ export const SpkLab: React.FC<SpkLabProps> = ({ lang = 'id' }) => {
                 <div className="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
                 <div className="flex items-center space-x-3 mb-2 relative z-10">
                     <span className="text-3xl">♻️</span>
-                    <h2 className="text-2xl font-bold font-sans">{t.title}</h2>
+                    <h2 className="text-2xl font-bold font-sans">{t('spkLab.title')}</h2>
                 </div>
                 <p className="text-white/80 text-sm max-w-2xl relative z-10">
-                    {t.subtitle}
+                    {t('spkLab.subtitle')}
                 </p>
             </div>
 
             {/* Navigasi Tab */}
             <div className="flex overflow-x-auto border-b border-slate-200 dark:border-space-starlight/20 bg-slate-50 dark:bg-[#060913]">
                 {[
-                    { id: 'dashboard', label: t.tabs.dashboard },
-                    { id: 'kriteria', label: t.tabs.kriteria },
-                    { id: 'pengepul', label: t.tabs.pengepul },
-                    { id: 'perhitungan', label: t.tabs.perhitungan },
+                    { id: 'dashboard', label: t('spkLab.tabs.dashboard') },
+                    { id: 'kriteria', label: t('spkLab.tabs.kriteria') },
+                    { id: 'pengepul', label: t('spkLab.tabs.pengepul') },
+                    { id: 'perhitungan', label: t('spkLab.tabs.perhitungan') },
                 ].map((tab) => (
                     <button
                         key={tab.id}
                         onClick={() => setActiveTab(tab.id as any)}
                         className={`px-6 py-4 text-sm font-semibold whitespace-nowrap transition-colors ${activeTab === tab.id
-                                ? 'border-b-2 border-blue-600 dark:border-space-starlight text-blue-600 dark:text-space-starlight bg-white dark:bg-[#0B1021]'
-                                : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-space-starlight/5'
+                            ? 'border-b-2 border-blue-600 dark:border-space-starlight text-blue-600 dark:text-space-starlight bg-white dark:bg-[#0B1021]'
+                            : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-space-starlight/5'
                             }`}
                     >
                         {tab.label}
@@ -243,33 +168,33 @@ export const SpkLab: React.FC<SpkLabProps> = ({ lang = 'id' }) => {
                     <div className="space-y-8 animate-in fade-in duration-500">
                         <div className="bg-slate-50 dark:bg-[#060913] p-6 sm:p-8 rounded-2xl border border-slate-200 dark:border-space-starlight/20">
                             <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3 flex items-center">
-                                <span className="mr-2">🎯</span> {t.dashboardContent.aboutTitle}
+                                <span className="mr-2">🎯</span> {t('spkLab.dashboardContent.aboutTitle')}
                             </h3>
                             <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
-                                {t.dashboardContent.aboutDesc}
+                                {t('spkLab.dashboardContent.aboutDesc')}
                             </p>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="bg-blue-50/50 dark:bg-blue-900/10 p-6 rounded-2xl border border-blue-100 dark:border-blue-800/30">
                                 <div className="w-10 h-10 bg-blue-100 dark:bg-blue-800/50 text-blue-600 dark:text-blue-300 rounded-lg flex items-center justify-center font-bold mb-4 shadow-sm">1</div>
-                                <h4 className="text-lg font-bold text-blue-800 dark:text-blue-300 mb-2">{t.dashboardContent.sawTitle}</h4>
+                                <h4 className="text-lg font-bold text-blue-800 dark:text-blue-300 mb-2">{t('spkLab.dashboardContent.sawTitle')}</h4>
                                 <p className="text-sm text-blue-900/70 dark:text-blue-200/70 leading-relaxed">
-                                    {t.dashboardContent.sawDesc}
+                                    {t('spkLab.dashboardContent.sawDesc')}
                                 </p>
                             </div>
                             <div className="bg-purple-50/50 dark:bg-purple-900/10 p-6 rounded-2xl border border-purple-100 dark:border-purple-800/30">
                                 <div className="w-10 h-10 bg-purple-100 dark:bg-purple-800/50 text-purple-600 dark:text-purple-300 rounded-lg flex items-center justify-center font-bold mb-4 shadow-sm">2</div>
-                                <h4 className="text-lg font-bold text-purple-800 dark:text-purple-300 mb-2">{t.dashboardContent.topsisTitle}</h4>
+                                <h4 className="text-lg font-bold text-purple-800 dark:text-purple-300 mb-2">{t('spkLab.dashboardContent.topsisTitle')}</h4>
                                 <p className="text-sm text-purple-900/70 dark:text-purple-200/70 leading-relaxed">
-                                    {t.dashboardContent.topsisDesc}
+                                    {t('spkLab.dashboardContent.topsisDesc')}
                                 </p>
                             </div>
                         </div>
 
                         <div>
                             <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4 flex items-center">
-                                <span className="mr-2">⚡</span> {t.dashboardContent.techTitle}
+                                <span className="mr-2">⚡</span> {t('spkLab.dashboardContent.techTitle')}
                             </h3>
                             <div className="flex flex-wrap gap-3">
                                 {['React.js', 'TypeScript', 'Tailwind CSS', 'Multi-Method Engine'].map(tech => (
@@ -279,7 +204,7 @@ export const SpkLab: React.FC<SpkLabProps> = ({ lang = 'id' }) => {
                                 ))}
                             </div>
                             <p className="text-xs text-slate-500 mt-3 italic">
-                                {t.dashboardContent.techNote}
+                                {t('spkLab.dashboardContent.techNote')}
                             </p>
                         </div>
                     </div>
@@ -288,9 +213,9 @@ export const SpkLab: React.FC<SpkLabProps> = ({ lang = 'id' }) => {
                 {activeTab === 'kriteria' && (
                     <div className="space-y-4 animate-in fade-in duration-300">
                         <div>
-                            <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1">{t.criteriaContent.title}</h3>
+                            <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1">{t('spkLab.criteriaContent.title')}</h3>
                             <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
-                                {t.criteriaContent.desc}
+                                {t('spkLab.criteriaContent.desc')}
                             </p>
                         </div>
                         <ul className="space-y-4">
@@ -320,7 +245,7 @@ export const SpkLab: React.FC<SpkLabProps> = ({ lang = 'id' }) => {
 
                 {activeTab === 'pengepul' && (
                     <div className="animate-in fade-in duration-300">
-                        <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">{t.pengepulContent.title}</h3>
+                        <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">{t('spkLab.pengepulContent.title')}</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {pengepul.map(p => (
                                 <div key={p.id} className="p-5 bg-slate-50 dark:bg-[#060913] border border-slate-200 dark:border-space-starlight/20 rounded-xl flex flex-col justify-between">
@@ -345,9 +270,9 @@ export const SpkLab: React.FC<SpkLabProps> = ({ lang = 'id' }) => {
                         <div>
                             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-6 space-y-4 sm:space-y-0">
                                 <div>
-                                    <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">{t.resultContent.title}</h3>
+                                    <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">{t('spkLab.resultContent.title')}</h3>
                                     <p className="text-sm text-slate-500">
-                                        {t.resultContent.desc}
+                                        {t('spkLab.resultContent.desc')}
                                     </p>
                                 </div>
 
@@ -371,9 +296,9 @@ export const SpkLab: React.FC<SpkLabProps> = ({ lang = 'id' }) => {
                                 <table className="w-full text-left text-sm">
                                     <thead className="bg-slate-100 dark:bg-[#060913] text-slate-600 dark:text-slate-400">
                                         <tr>
-                                            <th className="p-4 border-b border-slate-200 dark:border-space-starlight/20">{t.resultContent.tableRank}</th>
-                                            <th className="p-4 border-b border-slate-200 dark:border-space-starlight/20">{t.resultContent.tableName}</th>
-                                            <th className="p-4 border-b border-slate-200 dark:border-space-starlight/20 text-right">{t.resultContent.tableScore}</th>
+                                            <th className="p-4 border-b border-slate-200 dark:border-space-starlight/20">{t('spkLab.resultContent.tableRank')}</th>
+                                            <th className="p-4 border-b border-slate-200 dark:border-space-starlight/20">{t('spkLab.resultContent.tableName')}</th>
+                                            <th className="p-4 border-b border-slate-200 dark:border-space-starlight/20 text-right">{t('spkLab.resultContent.tableScore')}</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-slate-200 dark:divide-space-starlight/20">
