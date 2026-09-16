@@ -33,9 +33,9 @@ const MOCK_NILAI: NilaiEvaluasi[] = [
 
 export const SpkLab: React.FC = () => {
     const [activeTab, setActiveTab] = useState<'dashboard' | 'kriteria' | 'pengepul' | 'perhitungan'>('dashboard');
-    const [pengepul] = useState<Pengepul[]>(MOCK_PENGEPUL);
+    const [activeMethod, setActiveMethod] = useState<'SAW' | 'TOPSIS'>('SAW');
 
-    // STATE BARU: Kriteria sekarang menjadi dinamis (bisa diubah)
+    const [pengepul] = useState<Pengepul[]>(MOCK_PENGEPUL);
     const [kriteria, setKriteria] = useState<Kriteria[]>([
         { id: 'k1', kode: 'C1', nama: 'Harga Beli', atribut: 'benefit', bobot: 30 },
         { id: 'k2', kode: 'C2', nama: 'Jarak Lokasi', atribut: 'cost', bobot: 20 },
@@ -43,12 +43,11 @@ export const SpkLab: React.FC = () => {
         { id: 'k4', kode: 'C4', nama: 'Pelayanan', atribut: 'benefit', bobot: 25 },
     ]);
 
-    // Fungsi untuk memperbarui bobot saat slider digeser
     const handleUbahBobot = (id: string, bobotBaru: number) => {
         setKriteria(prev => prev.map(k => k.id === id ? { ...k, bobot: bobotBaru } : k));
     };
 
-    // Engine Kalkulasi SAW (Otomatis menghitung ulang jika kriteria/bobot berubah)
+    // --- ENGINE 1: SAW (Simple Additive Weighting) ---
     const hasilSAW = useMemo(() => {
         const maxMinPerKriteria: Record<string, { max: number, min: number }> = {};
 
@@ -63,7 +62,6 @@ export const SpkLab: React.FC = () => {
         const hasil = pengepul.map(p => {
             const dataNilai = MOCK_NILAI.find(n => n.pengepulId === p.id);
             let totalSkor = 0;
-            const rincianNormalisasi: Record<string, number> = {};
 
             kriteria.forEach(k => {
                 const nilaiAsli = dataNilai?.nilai[k.id] || 0;
@@ -75,16 +73,71 @@ export const SpkLab: React.FC = () => {
                     nilaiNormalisasi = nilaiAsli === 0 ? 0 : maxMinPerKriteria[k.id].min / nilaiAsli;
                 }
 
-                rincianNormalisasi[k.id] = nilaiNormalisasi;
-                // Bobot digunakan langsung sebagai pengali
                 totalSkor += nilaiNormalisasi * (k.bobot / 100);
             });
 
-            return { ...p, totalSkor, rincianNormalisasi };
+            return { ...p, totalSkor };
         });
 
         return hasil.sort((a, b) => b.totalSkor - a.totalSkor);
     }, [kriteria, pengepul]);
+
+    // --- ENGINE 2: TOPSIS (Technique for Order of Preference by Similarity to Ideal Solution) ---
+    const hasilTOPSIS = useMemo(() => {
+        const pembagiPerKriteria: Record<string, number> = {};
+        kriteria.forEach(k => {
+            const sumOfSquares = MOCK_NILAI.reduce((acc, n) => acc + Math.pow(n.nilai[k.id] || 0, 2), 0);
+            pembagiPerKriteria[k.id] = Math.sqrt(sumOfSquares);
+        });
+
+        const matriksY = MOCK_NILAI.map(n => {
+            const y: Record<string, number> = {};
+            kriteria.forEach(k => {
+                const nilaiAsli = n.nilai[k.id] || 0;
+                const r = pembagiPerKriteria[k.id] === 0 ? 0 : nilaiAsli / pembagiPerKriteria[k.id];
+                y[k.id] = r * (k.bobot / 100);
+            });
+            return { pengepulId: n.pengepulId, y };
+        });
+
+        const idealPositif: Record<string, number> = {};
+        const idealNegatif: Record<string, number> = {};
+
+        kriteria.forEach(k => {
+            const semuaY = matriksY.map(m => m.y[k.id]);
+            if (k.atribut === 'benefit') {
+                idealPositif[k.id] = Math.max(...semuaY);
+                idealNegatif[k.id] = Math.min(...semuaY);
+            } else {
+                idealPositif[k.id] = Math.min(...semuaY);
+                idealNegatif[k.id] = Math.max(...semuaY);
+            }
+        });
+
+        const hasil = pengepul.map(p => {
+            const yPengepul = matriksY.find(m => m.pengepulId === p.id)?.y || {};
+            let dPlusSq = 0;
+            let dMinSq = 0;
+
+            kriteria.forEach(k => {
+                const y = yPengepul[k.id] || 0;
+                dPlusSq += Math.pow(y - idealPositif[k.id], 2);
+                dMinSq += Math.pow(y - idealNegatif[k.id], 2);
+            });
+
+            const dPlus = Math.sqrt(dPlusSq);
+            const dMin = Math.sqrt(dMinSq);
+
+            const totalSkor = (dMin + dPlus) === 0 ? 0 : dMin / (dMin + dPlus);
+
+            return { ...p, totalSkor };
+        });
+
+        return hasil.sort((a, b) => b.totalSkor - a.totalSkor);
+    }, [kriteria, pengepul]);
+
+    // Tentukan data mana yang akan di-render di tabel
+    const hasilAktif = activeMethod === 'SAW' ? hasilSAW : hasilTOPSIS;
 
     return (
         <div className="bg-white dark:bg-[#0B1021] rounded-2xl shadow-sm border border-slate-200 dark:border-space-starlight/20 overflow-hidden transition-colors relative z-10">
@@ -96,7 +149,7 @@ export const SpkLab: React.FC = () => {
                     <h2 className="text-2xl font-bold font-sans">Lab: SPK Bank Sampah Japos</h2>
                 </div>
                 <p className="text-white/80 text-sm max-w-2xl">
-                    Simulasi Sistem Penunjang Keputusan interaktif menggunakan metode <strong>SAW</strong>.
+                    Simulasi Sistem Penunjang Keputusan interaktif menggunakan metode <strong>SAW dan TOPSIS</strong>.
                 </p>
             </div>
 
@@ -104,7 +157,7 @@ export const SpkLab: React.FC = () => {
             <div className="flex overflow-x-auto border-b border-slate-200 dark:border-space-starlight/20 bg-slate-50 dark:bg-[#060913]">
                 {[
                     { id: 'dashboard', label: '📊 Dashboard' },
-                    { id: 'kriteria', label: '🎛️ Atur Kriteria' }, // Icon diperbarui
+                    { id: 'kriteria', label: '🎛️ Atur Kriteria' },
                     { id: 'pengepul', label: '👥 Data Pengepul' },
                     { id: 'perhitungan', label: '⚙️ Kalkulasi & Hasil' },
                 ].map((tab) => (
@@ -135,20 +188,19 @@ export const SpkLab: React.FC = () => {
                                 <p className="text-3xl font-bold text-slate-900 dark:text-white">{pengepul.length}</p>
                             </div>
                             <div className="p-4 rounded-xl bg-green-50 dark:bg-green-900/10 border border-green-100 dark:border-green-800/30">
-                                <p className="text-sm text-green-600 dark:text-green-400 font-semibold mb-1">Status Mesin SAW</p>
-                                <p className="text-xl font-bold text-slate-900 dark:text-white mt-2">Aktif 🟢</p>
+                                <p className="text-sm text-green-600 dark:text-green-400 font-semibold mb-1">Mesin SPK Aktif</p>
+                                <p className="text-xl font-bold text-slate-900 dark:text-white mt-2">SAW & TOPSIS 🟢</p>
                             </div>
                         </div>
                     </div>
                 )}
 
-                {/* TAB KRITERIA SEKARANG INTERAKTIF */}
                 {activeTab === 'kriteria' && (
                     <div className="space-y-4">
                         <div>
                             <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1">Pengaturan Bobot Kriteria</h3>
                             <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
-                                Geser *slider* di bawah ini untuk mengubah bobot preferensi, lalu lihat perubahannya di tab Kalkulasi & Hasil!
+                                Geser *slider* di bawah ini untuk mengubah bobot preferensi, lalu lihat perubahannya di tab Kalkulasi!
                             </p>
                         </div>
                         <ul className="space-y-4">
@@ -195,30 +247,50 @@ export const SpkLab: React.FC = () => {
                 {activeTab === 'perhitungan' && (
                     <div className="space-y-6">
                         <div>
-                            <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Hasil Akhir & Ranking (SAW)</h3>
-                            <p className="text-sm text-slate-500 mb-4">
-                                Tabel ini dihitung secara dinamis. Pengepul dengan skor <strong>(V)</strong> tertinggi direkomendasikan sebagai pilihan terbaik.
-                            </p>
+                            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-6 space-y-4 sm:space-y-0">
+                                <div>
+                                    <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Hasil Akhir & Ranking</h3>
+                                    <p className="text-sm text-slate-500">
+                                        Pengepul dengan skor <strong>(V)</strong> tertinggi direkomendasikan sebagai pilihan terbaik.
+                                    </p>
+                                </div>
+
+                                {/* Toggle Metode (SAW / TOPSIS) */}
+                                <div className="flex bg-slate-100 dark:bg-[#060913] p-1 rounded-lg border border-slate-200 dark:border-space-starlight/20">
+                                    <button
+                                        onClick={() => setActiveMethod('SAW')}
+                                        className={`px-6 py-2 text-sm font-bold rounded-md transition-all duration-300 ${activeMethod === 'SAW' ? 'bg-white dark:bg-space-starlight/20 text-blue-600 dark:text-blue-400 shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
+                                    >
+                                        Metode SAW
+                                    </button>
+                                    <button
+                                        onClick={() => setActiveMethod('TOPSIS')}
+                                        className={`px-6 py-2 text-sm font-bold rounded-md transition-all duration-300 ${activeMethod === 'TOPSIS' ? 'bg-white dark:bg-space-starlight/20 text-purple-600 dark:text-purple-400 shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
+                                    >
+                                        Metode TOPSIS
+                                    </button>
+                                </div>
+                            </div>
 
                             <div className="overflow-x-auto border border-slate-200 dark:border-space-starlight/20 rounded-lg">
                                 <table className="w-full text-left text-sm">
                                     <thead className="bg-slate-100 dark:bg-[#060913] text-slate-600 dark:text-slate-400">
                                         <tr>
-                                            <th className="p-3 border-b border-slate-200 dark:border-space-starlight/20">Rank</th>
-                                            <th className="p-3 border-b border-slate-200 dark:border-space-starlight/20">Nama Pengepul</th>
-                                            <th className="p-3 border-b border-slate-200 dark:border-space-starlight/20 text-right">Skor (V)</th>
+                                            <th className="p-4 border-b border-slate-200 dark:border-space-starlight/20">Rank</th>
+                                            <th className="p-4 border-b border-slate-200 dark:border-space-starlight/20">Nama Pengepul</th>
+                                            <th className="p-4 border-b border-slate-200 dark:border-space-starlight/20 text-right">Skor (V)</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-slate-200 dark:divide-space-starlight/20">
-                                        {hasilSAW.map((hasil, index) => (
-                                            <tr key={hasil.id} className={index === 0 ? 'bg-amber-50 dark:bg-amber-900/10' : 'hover:bg-slate-50 dark:hover:bg-space-starlight/5 transition-colors'}>
-                                                <td className="p-3 font-bold text-slate-900 dark:text-white">
+                                        {hasilAktif.map((hasil, index) => (
+                                            <tr key={hasil.id} className={index === 0 ? 'bg-amber-50/50 dark:bg-amber-900/10' : 'hover:bg-slate-50 dark:hover:bg-space-starlight/5 transition-colors'}>
+                                                <td className="p-4 font-bold text-slate-900 dark:text-white">
                                                     {index === 0 ? '👑 1' : index + 1}
                                                 </td>
-                                                <td className="p-3 text-slate-700 dark:text-slate-300 font-medium">
+                                                <td className="p-4 text-slate-700 dark:text-slate-300 font-medium">
                                                     {hasil.nama}
                                                 </td>
-                                                <td className="p-3 text-right font-mono font-bold text-blue-600 dark:text-blue-400">
+                                                <td className={`p-4 text-right font-mono font-bold ${activeMethod === 'SAW' ? 'text-blue-600 dark:text-blue-400' : 'text-purple-600 dark:text-purple-400'}`}>
                                                     {hasil.totalSkor.toFixed(4)}
                                                 </td>
                                             </tr>
