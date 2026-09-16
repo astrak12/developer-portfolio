@@ -104,7 +104,7 @@ const resources = {
                         desc: "Sistem deteksi objek berbasis pemrosesan data cerdas yang dilengkapi fitur analitik dan sistem notifikasi otomatis menggunakan pustaka Pandas.",
                         tech: ["Python", "Pandas", "OpenCV", "AI Model"],
                         githubUrl: "https://github.com/astrak12",
-                        demoUrl: "#"
+                        demoUrl: "/labs/object-detection"
                     }
                 ]
             },
@@ -156,6 +156,56 @@ const resources = {
                     tableRank: "Rank",
                     tableName: "Nama Pengepul",
                     tableScore: "Skor (V)"
+                }
+            },
+            // Kamus Terjemahan Standar untuk Lab Object Detection
+            objectDetectionLab: {
+                title: "Lab: AI Object Detection (YOLOv8)",
+                subtitle: "Simulasi interaktif aplikasi pendeteksi objek berbasis model YOLOv8, OpenCV, dan GUI Python.",
+                tabs: {
+                    dashboard: "📊 Beranda & Abstrak",
+                    kebutuhan: "📋 Analisis Kebutuhan",
+                    perancangan: "⚙️ Perancangan Sistem",
+                    playground: "🚀 Simulasi Lab"
+                },
+                dashboardContent: {
+                    aboutTitle: "📜 Abstrak Sistem",
+                    aboutDesc: "Aplikasi pendeteksi objek berbasis model YOLOv8 menggunakan bahasa pemrograman Python dengan antarmuka grafis Tkinter. Mampu melakukan deteksi objek pada gambar maupun video webcam secara real-time serta dilengkapi fitur pembuatan dataset dummy.",
+                    modelTitle: "🤖 Model YOLOv8",
+                    modelDesc: "Memanfaatkan library ultralytics untuk akurasi tinggi dan kecepatan inferensi optimal.",
+                    guiTitle: "🖥️ GUI & OpenCV",
+                    guiDesc: "Pengolahan citra digital menggunakan OpenCV (cv2) dan Tkinter untuk tata letak jendela.",
+                    datasetTitle: "📦 Dataset Generator",
+                    datasetDesc: "Fitur pendukung untuk membuat data latih tiruan secara programatik guna eksperimen model."
+                },
+                kebutuhanContent: {
+                    title: "Analisis Kebutuhan Sistem",
+                    funcTitle: "✅ Kebutuhan Fungsional",
+                    funcItems: [
+                        "Memuat dan menampilkan berkas gambar untuk deteksi objek.",
+                        "Melakukan inferensi deteksi objek pada gambar.",
+                        "Mengakses perangkat webcam dan mendeteksi secara real-time.",
+                        "Menyimpan tangkapan layar hasil deteksi.",
+                        "Membersihkan area kanvas (clear canvas).",
+                        "Membuat dataset dummy untuk latihan pelatihan model."
+                    ],
+                    nonFuncTitle: "⚙️ Kebutuhan Non-Fungsional",
+                    nonFuncItems: [
+                        "Antarmuka perangkat lunak harus responsif dan mudah digunakan.",
+                        "Model deteksi harus stabil dengan pengaturan threshold fleksibel.",
+                        "Berbasis pustaka open-source Python (ultralytics dan Tkinter)."
+                    ]
+                },
+                perancanganContent: {
+                    title: "Perancangan & Alur Kerja Sistem",
+                    desc: "Sistem dirancang secara modular yang terdiri dari modul antarmuka GUI, modul pemrosesan model YOLOv8, serta modul generator dataset dummy.",
+                    workflowTitle: "// Workflow Eksekusi:",
+                    workflowItems: [
+                        "1. Pengguna memilih sumber input (Gambar / Webcam / Dataset Dummy).",
+                        "2. Modul OpenCV membaca frame gambar dan mengirimkannya ke objek YOLO.",
+                        "3. Model menghasilkan koordinat kotak pembatas (bounding box) dan tingkat konfidensi.",
+                        "4. Hasil render divisualisasikan pada kanvas antarmuka."
+                    ]
                 }
             }
         }
@@ -261,7 +311,7 @@ const resources = {
                         desc: "An intelligent data processing-based object detection system equipped with analytics features and automated notifications using Pandas.",
                         tech: ["Python", "Pandas", "OpenCV", "AI Model"],
                         githubUrl: "https://github.com/astrak12",
-                        demoUrl: "#"
+                        demoUrl: "/labs/object-detection"
                     }
                 ]
             },
@@ -270,8 +320,8 @@ const resources = {
                 subtitle: "Recent contribution track record and public repositories.",
             },
             contact: {
-                subtitle: "06 — CONTACT & TRANSMISSION",
                 title: "Let's Connect",
+                subtitle: "06 — CONTACT & TRANSMISSION",
                 desc: "Please reach out to me through the telemetry channel below for project collaboration or career opportunities.",
                 emailLabel: "// Direct Email",
                 emailAction: "Send Email Message",
@@ -313,6 +363,56 @@ const resources = {
                     tableRank: "Rank",
                     tableName: "Collector Name",
                     tableScore: "Score (V)"
+                }
+            },
+            // Lab Object Detection Translation Dictionary (English)
+            objectDetectionLab: {
+                title: "Lab: AI Object Detection (YOLOv8)",
+                subtitle: "Interactive simulation of an object detection application based on the YOLOv8 model, OpenCV, and Python GUI.",
+                tabs: {
+                    dashboard: "📊 Home & Abstract",
+                    kebutuhan: "📋 Requirements",
+                    perancangan: "⚙️ System Design",
+                    playground: "🚀 Lab Simulation"
+                },
+                dashboardContent: {
+                    aboutTitle: "📜 System Abstract",
+                    aboutDesc: "An object detection application based on the YOLOv8 model using Python and a Tkinter graphical interface. Capable of performing real-time object detection on images and webcam feeds, equipped with a dummy dataset generator feature.",
+                    modelTitle: "🤖 YOLOv8 Model",
+                    modelDesc: "Utilizes the ultralytics library for high accuracy and optimal inference speed.",
+                    guiTitle: "🖥️ GUI & OpenCV",
+                    guiDesc: "Digital image processing using OpenCV (cv2) and Tkinter for window layouts.",
+                    datasetTitle: "📦 Dataset Generator",
+                    datasetDesc: "Supporting feature to programmatically generate mock training data for model experiments."
+                },
+                kebutuhanContent: {
+                    title: "System Requirements Analysis",
+                    funcTitle: "✅ Functional Requirements",
+                    funcItems: [
+                        "Load and display image files for object detection.",
+                        "Perform object detection inference on images.",
+                        "Access webcam devices for real-time detection.",
+                        "Save detection result screenshots.",
+                        "Clear the canvas area.",
+                        "Generate dummy datasets for model training exercises."
+                    ],
+                    nonFuncTitle: "⚙️ Non-Functional Requirements",
+                    nonFuncItems: [
+                        "The software interface must be responsive and user-friendly.",
+                        "The detection model must be stable with flexible threshold settings.",
+                        "Built on open-source Python libraries (ultralytics and Tkinter)."
+                    ]
+                },
+                perancanganContent: {
+                    title: "System Design & Workflow",
+                    desc: "The system is designed modularly, consisting of a GUI interface module, a YOLOv8 model processing module, and a dummy dataset generator module.",
+                    workflowTitle: "// Execution Workflow:",
+                    workflowItems: [
+                        "1. User selects the input source (Image / Webcam / Dummy Dataset).",
+                        "2. OpenCV module reads the image frame and sends it to the YOLO object.",
+                        "3. The model generates bounding box coordinates and confidence levels.",
+                        "4. Rendered results are visualized on the interface canvas."
+                    ]
                 }
             }
         }
