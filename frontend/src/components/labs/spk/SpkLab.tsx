@@ -19,20 +19,12 @@ interface NilaiEvaluasi {
     nilai: Record<string, number>;
 }
 
-const MOCK_KRITERIA: Kriteria[] = [
-    { id: 'k1', kode: 'C1', nama: 'Harga Beli', atribut: 'benefit', bobot: 30 },
-    { id: 'k2', kode: 'C2', nama: 'Jarak Lokasi', atribut: 'cost', bobot: 20 },
-    { id: 'k3', kode: 'C3', nama: 'Kapasitas Tampung', atribut: 'benefit', bobot: 25 },
-    { id: 'k4', kode: 'C4', nama: 'Pelayanan', atribut: 'benefit', bobot: 25 },
-];
-
 const MOCK_PENGEPUL: Pengepul[] = [
     { id: 'p1', nama: 'Pengepul A (Bapak Budi)' },
     { id: 'p2', nama: 'Pengepul B (Ibu Siti)' },
     { id: 'p3', nama: 'Pengepul C (CV. Sampah Berkah)' },
 ];
 
-// Data mentah penilaian
 const MOCK_NILAI: NilaiEvaluasi[] = [
     { pengepulId: 'p1', nilai: { k1: 80, k2: 5, k3: 100, k4: 80 } },
     { pengepulId: 'p2', nilai: { k1: 90, k2: 15, k3: 80, k4: 70 } },
@@ -41,14 +33,25 @@ const MOCK_NILAI: NilaiEvaluasi[] = [
 
 export const SpkLab: React.FC = () => {
     const [activeTab, setActiveTab] = useState<'dashboard' | 'kriteria' | 'pengepul' | 'perhitungan'>('dashboard');
-    const kriteria = MOCK_KRITERIA;
-    const pengepul = MOCK_PENGEPUL;
+    const [pengepul] = useState<Pengepul[]>(MOCK_PENGEPUL);
 
-    // --- ENGINE KALKULASI SAW ---
+    // STATE BARU: Kriteria sekarang menjadi dinamis (bisa diubah)
+    const [kriteria, setKriteria] = useState<Kriteria[]>([
+        { id: 'k1', kode: 'C1', nama: 'Harga Beli', atribut: 'benefit', bobot: 30 },
+        { id: 'k2', kode: 'C2', nama: 'Jarak Lokasi', atribut: 'cost', bobot: 20 },
+        { id: 'k3', kode: 'C3', nama: 'Kapasitas Tampung', atribut: 'benefit', bobot: 25 },
+        { id: 'k4', kode: 'C4', nama: 'Pelayanan', atribut: 'benefit', bobot: 25 },
+    ]);
+
+    // Fungsi untuk memperbarui bobot saat slider digeser
+    const handleUbahBobot = (id: string, bobotBaru: number) => {
+        setKriteria(prev => prev.map(k => k.id === id ? { ...k, bobot: bobotBaru } : k));
+    };
+
+    // Engine Kalkulasi SAW (Otomatis menghitung ulang jika kriteria/bobot berubah)
     const hasilSAW = useMemo(() => {
         const maxMinPerKriteria: Record<string, { max: number, min: number }> = {};
 
-        // 1. Cari nilai Max/Min
         kriteria.forEach(k => {
             const semuaNilai = MOCK_NILAI.map(n => n.nilai[k.id] || 0);
             maxMinPerKriteria[k.id] = {
@@ -57,7 +60,6 @@ export const SpkLab: React.FC = () => {
             };
         });
 
-        // 2. Normalisasi & 3. Hitung Nilai Akhir
         const hasil = pengepul.map(p => {
             const dataNilai = MOCK_NILAI.find(n => n.pengepulId === p.id);
             let totalSkor = 0;
@@ -67,7 +69,6 @@ export const SpkLab: React.FC = () => {
                 const nilaiAsli = dataNilai?.nilai[k.id] || 0;
                 let nilaiNormalisasi = 0;
 
-                // Mencegah pembagian dengan 0 agar React tidak crash
                 if (k.atribut === 'benefit') {
                     nilaiNormalisasi = maxMinPerKriteria[k.id].max === 0 ? 0 : nilaiAsli / maxMinPerKriteria[k.id].max;
                 } else {
@@ -75,32 +76,27 @@ export const SpkLab: React.FC = () => {
                 }
 
                 rincianNormalisasi[k.id] = nilaiNormalisasi;
+                // Bobot digunakan langsung sebagai pengali
                 totalSkor += nilaiNormalisasi * (k.bobot / 100);
             });
 
-            return {
-                ...p,
-                totalSkor,
-                rincianNormalisasi
-            };
+            return { ...p, totalSkor, rincianNormalisasi };
         });
 
-        // 4. Urutkan berdasarkan total skor tertinggi
         return hasil.sort((a, b) => b.totalSkor - a.totalSkor);
     }, [kriteria, pengepul]);
 
     return (
-        // PERHATIKAN: Saya menambahkan "relative z-10" di sini agar tidak tenggelam oleh Starfield!
         <div className="bg-white dark:bg-[#0B1021] rounded-2xl shadow-sm border border-slate-200 dark:border-space-starlight/20 overflow-hidden transition-colors relative z-10">
 
-            {/* Header Lab SPK */}
+            {/* Header Lab */}
             <div className="bg-gradient-to-r from-blue-600 to-purple-600 dark:from-space-starlight dark:to-space-nebula p-6 sm:p-8 text-white">
                 <div className="flex items-center space-x-3 mb-2">
                     <span className="text-3xl">♻️</span>
                     <h2 className="text-2xl font-bold font-sans">Lab: SPK Bank Sampah Japos</h2>
                 </div>
                 <p className="text-white/80 text-sm max-w-2xl">
-                    Simulasi Sistem Penunjang Keputusan pemilihan pengepul sampah terbaik menggunakan metode <strong>SAW</strong>.
+                    Simulasi Sistem Penunjang Keputusan interaktif menggunakan metode <strong>SAW</strong>.
                 </p>
             </div>
 
@@ -108,7 +104,7 @@ export const SpkLab: React.FC = () => {
             <div className="flex overflow-x-auto border-b border-slate-200 dark:border-space-starlight/20 bg-slate-50 dark:bg-[#060913]">
                 {[
                     { id: 'dashboard', label: '📊 Dashboard' },
-                    { id: 'kriteria', label: '📝 Data Kriteria' },
+                    { id: 'kriteria', label: '🎛️ Atur Kriteria' }, // Icon diperbarui
                     { id: 'pengepul', label: '👥 Data Pengepul' },
                     { id: 'perhitungan', label: '⚙️ Kalkulasi & Hasil' },
                 ].map((tab) => (
@@ -129,7 +125,6 @@ export const SpkLab: React.FC = () => {
             <div className="p-6 sm:p-8 min-h-[400px]">
                 {activeTab === 'dashboard' && (
                     <div className="space-y-6">
-                        <h3 className="text-lg font-bold text-slate-900 dark:text-white">Ringkasan Sistem</h3>
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                             <div className="p-4 rounded-xl bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-800/30">
                                 <p className="text-sm text-blue-600 dark:text-blue-400 font-semibold mb-1">Total Kriteria</p>
@@ -147,16 +142,36 @@ export const SpkLab: React.FC = () => {
                     </div>
                 )}
 
+                {/* TAB KRITERIA SEKARANG INTERAKTIF */}
                 {activeTab === 'kriteria' && (
-                    <div>
-                        <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">Data Kriteria</h3>
-                        <ul className="space-y-2">
+                    <div className="space-y-4">
+                        <div>
+                            <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1">Pengaturan Bobot Kriteria</h3>
+                            <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
+                                Geser *slider* di bawah ini untuk mengubah bobot preferensi, lalu lihat perubahannya di tab Kalkulasi & Hasil!
+                            </p>
+                        </div>
+                        <ul className="space-y-4">
                             {kriteria.map(k => (
-                                <li key={k.id} className="p-3 bg-slate-50 dark:bg-[#060913] border border-slate-200 dark:border-space-starlight/20 rounded-lg flex justify-between">
-                                    <span className="font-mono text-slate-700 dark:text-slate-300">[{k.kode}] {k.nama}</span>
-                                    <div className="space-x-3">
-                                        <span className={`text-xs px-2 py-1 rounded-md ${k.atribut === 'benefit' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'}`}>{k.atribut.toUpperCase()}</span>
-                                        <span className="text-sm text-slate-500 font-bold">Bobot: {k.bobot}%</span>
+                                <li key={k.id} className="p-4 bg-slate-50 dark:bg-[#060913] border border-slate-200 dark:border-space-starlight/20 rounded-xl">
+                                    <div className="flex justify-between items-center mb-3">
+                                        <span className="font-mono font-bold text-slate-700 dark:text-slate-300">[{k.kode}] {k.nama}</span>
+                                        <span className={`text-xs px-2 py-1 rounded-md font-semibold ${k.atribut === 'benefit' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'}`}>
+                                            {k.atribut.toUpperCase()}
+                                        </span>
+                                    </div>
+                                    <div className="flex items-center space-x-4">
+                                        <input
+                                            type="range"
+                                            min="0"
+                                            max="100"
+                                            value={k.bobot}
+                                            onChange={(e) => handleUbahBobot(k.id, Number(e.target.value))}
+                                            className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                                        />
+                                        <span className="font-bold text-slate-600 dark:text-slate-400 min-w-[3rem] text-right font-mono">
+                                            {k.bobot}%
+                                        </span>
                                     </div>
                                 </li>
                             ))}
@@ -166,7 +181,7 @@ export const SpkLab: React.FC = () => {
 
                 {activeTab === 'pengepul' && (
                     <div>
-                        <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">Data Pengepul</h3>
+                        <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">Data Alternatif Pengepul</h3>
                         <ul className="space-y-2">
                             {pengepul.map(p => (
                                 <li key={p.id} className="p-3 bg-slate-50 dark:bg-[#060913] border border-slate-200 dark:border-space-starlight/20 rounded-lg text-slate-700 dark:text-slate-300">
@@ -181,7 +196,9 @@ export const SpkLab: React.FC = () => {
                     <div className="space-y-6">
                         <div>
                             <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Hasil Akhir & Ranking (SAW)</h3>
-                            <p className="text-sm text-slate-500 mb-4">Tabel di bawah menampilkan hasil perhitungan preferensi (V) yang telah diurutkan otomatis.</p>
+                            <p className="text-sm text-slate-500 mb-4">
+                                Tabel ini dihitung secara dinamis. Pengepul dengan skor <strong>(V)</strong> tertinggi direkomendasikan sebagai pilihan terbaik.
+                            </p>
 
                             <div className="overflow-x-auto border border-slate-200 dark:border-space-starlight/20 rounded-lg">
                                 <table className="w-full text-left text-sm">
@@ -194,7 +211,7 @@ export const SpkLab: React.FC = () => {
                                     </thead>
                                     <tbody className="divide-y divide-slate-200 dark:divide-space-starlight/20">
                                         {hasilSAW.map((hasil, index) => (
-                                            <tr key={hasil.id} className={index === 0 ? 'bg-amber-50 dark:bg-amber-900/10' : ''}>
+                                            <tr key={hasil.id} className={index === 0 ? 'bg-amber-50 dark:bg-amber-900/10' : 'hover:bg-slate-50 dark:hover:bg-space-starlight/5 transition-colors'}>
                                                 <td className="p-3 font-bold text-slate-900 dark:text-white">
                                                     {index === 0 ? '👑 1' : index + 1}
                                                 </td>
