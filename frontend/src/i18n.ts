@@ -99,10 +99,10 @@ const resources = {
                         demoUrl: "https://alhijazindonesia.com/haji-plus"
                     },
                     {
-                        title: "Object Detection & Notification",
-                        subtitle: "COMPUTER VISION SYSTEM",
-                        desc: "Sistem deteksi objek berbasis pemrosesan data cerdas yang dilengkapi fitur analitik dan sistem notifikasi otomatis menggunakan pustaka Pandas.",
-                        tech: ["Python", "Pandas", "OpenCV", "AI Model"],
+                        title: "Real-time AI Object Detection",
+                        subtitle: "WEB AI VISION SYSTEM",
+                        desc: "Aplikasi deteksi objek langsung di browser menggunakan TensorFlow.js dan Webcam API. Diadaptasi dari proyek Python (YOLOv8) menjadi arsitektur modern web.",
+                        tech: ["React", "TensorFlow.js", "COCO-SSD", "Tailwind"],
                         githubUrl: "https://github.com/astrak12",
                         demoUrl: "/labs/object-detection"
                     }
@@ -123,7 +123,6 @@ const resources = {
                 location: "Tangerang Selatan, Indonesia",
                 availability: "Tersedia untuk proyek full-stack & magang"
             },
-            // Kamus Terjemahan Standar untuk Lab SPK
             spkLab: {
                 title: "Lab: SPK Bank Sampah Japos",
                 subtitle: "Eksperimen interaktif Sistem Penunjang Keputusan menggunakan metode SAW dan TOPSIS secara real-time.",
@@ -158,53 +157,50 @@ const resources = {
                     tableScore: "Skor (V)"
                 }
             },
-            // Kamus Terjemahan Standar untuk Lab Object Detection
             objectDetectionLab: {
-                title: "Lab: AI Object Detection (YOLOv8)",
-                subtitle: "Simulasi interaktif aplikasi pendeteksi objek berbasis model YOLOv8, OpenCV, dan GUI Python.",
+                title: "Lab: Real-time Object Detection",
+                subtitle: "Sistem computer vision di dalam browser menggunakan TensorFlow.js, mengadaptasi model YOLOv8 menjadi web AI yang interaktif.",
                 tabs: {
                     dashboard: "📊 Beranda & Abstrak",
                     kebutuhan: "📋 Analisis Kebutuhan",
                     perancangan: "⚙️ Perancangan Sistem",
-                    playground: "🚀 Simulasi Lab"
+                    playground: "🚀 Live Web AI"
                 },
                 dashboardContent: {
-                    aboutTitle: "📜 Abstrak Sistem",
-                    aboutDesc: "Aplikasi pendeteksi objek berbasis model YOLOv8 menggunakan bahasa pemrograman Python dengan antarmuka grafis Tkinter. Mampu melakukan deteksi objek pada gambar maupun video webcam secara real-time serta dilengkapi fitur pembuatan dataset dummy.",
-                    modelTitle: "🤖 Model YOLOv8",
-                    modelDesc: "Memanfaatkan library ultralytics untuk akurasi tinggi dan kecepatan inferensi optimal.",
-                    guiTitle: "🖥️ GUI & OpenCV",
-                    guiDesc: "Pengolahan citra digital menggunakan OpenCV (cv2) dan Tkinter untuk tata letak jendela.",
-                    datasetTitle: "📦 Dataset Generator",
-                    datasetDesc: "Fitur pendukung untuk membuat data latih tiruan secara programatik guna eksperimen model."
+                    aboutTitle: "📜 Abstrak Ekstraksi Proyek",
+                    aboutDesc: "Proyek aslinya dibangun menggunakan Python, YOLOv8, dan antarmuka Tkinter. Untuk keperluan portofolio interaktif ini, model AI telah di-porting ke arsitektur Web menggunakan TensorFlow.js (COCO-SSD) agar pengunjung dapat mencoba deteksi objek real-time langsung melalui webcam browser tanpa instalasi.",
+                    modelTitle: "🤖 Neural Network",
+                    modelDesc: "Berpindah dari Ultralytics (YOLOv8) lokal ke TensorFlow.js Web Model yang berjalan sepenuhnya di sisi klien (Client-side inference).",
+                    guiTitle: "🖥️ Modern Web UI",
+                    guiDesc: "Menggantikan antarmuka lawas Tkinter dengan React.js dan Tailwind CSS untuk pengalaman pengguna yang mulus dan responsif.",
+                    datasetTitle: "⚡ Real-time Webcam API",
+                    datasetDesc: "Menggunakan HTML5 MediaDevices API untuk menangkap frame video secara langsung dengan latensi rendah."
                 },
                 kebutuhanContent: {
-                    title: "Analisis Kebutuhan Sistem",
-                    funcTitle: "✅ Kebutuhan Fungsional",
+                    title: "Analisis Kebutuhan Sistem Terintegrasi",
+                    funcTitle: "✅ Kebutuhan Fungsional (Web AI)",
                     funcItems: [
-                        "Memuat dan menampilkan berkas gambar untuk deteksi objek.",
-                        "Melakukan inferensi deteksi objek pada gambar.",
-                        "Mengakses perangkat webcam dan mendeteksi secara real-time.",
-                        "Menyimpan tangkapan layar hasil deteksi.",
-                        "Membersihkan area kanvas (clear canvas).",
-                        "Membuat dataset dummy untuk latihan pelatihan model."
+                        "Meminta dan mengelola izin akses perangkat kamera (Webcam) secara aman.",
+                        "Menangkap aliran video real-time dan merendernya ke dalam elemen HTML5 Canvas.",
+                        "Melakukan inferensi deteksi objek secara terus-menerus (loop) di sisi klien.",
+                        "Menggambar kotak pembatas (bounding box) dan skor keyakinan di atas objek yang terdeteksi."
                     ],
-                    nonFuncTitle: "⚙️ Kebutuhan Non-Fungsional",
+                    nonFuncTitle: "⚙️ Kebutuhan Non-Fungsional (Performa)",
                     nonFuncItems: [
-                        "Antarmuka perangkat lunak harus responsif dan mudah digunakan.",
-                        "Model deteksi harus stabil dengan pengaturan threshold fleksibel.",
-                        "Berbasis pustaka open-source Python (ultralytics dan Tkinter)."
+                        "Proses inferensi AI tidak boleh memblokir thread utama antarmuka pengguna (UI).",
+                        "Aplikasi harus menyesuaikan skala resolusi secara otomatis berdasarkan spesifikasi perangkat keras pengguna.",
+                        "Privasi terjamin: Video tidak pernah dikirim ke server, diproses 100% di browser."
                     ]
                 },
                 perancanganContent: {
-                    title: "Perancangan & Alur Kerja Sistem",
-                    desc: "Sistem dirancang secara modular yang terdiri dari modul antarmuka GUI, modul pemrosesan model YOLOv8, serta modul generator dataset dummy.",
-                    workflowTitle: "// Workflow Eksekusi:",
+                    title: "Perancangan & Alur Kerja Web AI",
+                    desc: "Infrastruktur dibangun menggunakan komponen fungsional React dengan manajemen siklus hidup untuk membersihkan memori kamera secara otomatis saat keluar dari lab.",
+                    workflowTitle: "// Workflow Eksekusi (Real-time Browser):",
                     workflowItems: [
-                        "1. Pengguna memilih sumber input (Gambar / Webcam / Dataset Dummy).",
-                        "2. Modul OpenCV membaca frame gambar dan mengirimkannya ke objek YOLO.",
-                        "3. Model menghasilkan koordinat kotak pembatas (bounding box) dan tingkat konfidensi.",
-                        "4. Hasil render divisualisasikan pada kanvas antarmuka."
+                        "1. Mount: Memuat bobot model TensorFlow (COCO-SSD) dari jaringan pengiriman konten (CDN).",
+                        "2. Izin: Memanggil navigator.mediaDevices.getUserMedia() untuk menyalakan indikator kamera.",
+                        "3. Loop Inferensi: requestAnimationFrame digunakan untuk memproses frame video menjadi Tensor image.",
+                        "4. Prediksi & Render: Model mengembalikan array [x, y, width, height] yang dirender pada layer kanvas sekunder."
                     ]
                 }
             }
@@ -306,10 +302,10 @@ const resources = {
                         demoUrl: "https://alhijazindonesia.com/haji-plus"
                     },
                     {
-                        title: "Object Detection & Notification",
-                        subtitle: "COMPUTER VISION SYSTEM",
-                        desc: "An intelligent data processing-based object detection system equipped with analytics features and automated notifications using Pandas.",
-                        tech: ["Python", "Pandas", "OpenCV", "AI Model"],
+                        title: "Real-time AI Object Detection",
+                        subtitle: "WEB AI VISION SYSTEM",
+                        desc: "In-browser real-time object detection using TensorFlow.js and Webcam API. Adapted from a Python YOLOv8 project into a modern web architecture.",
+                        tech: ["React", "TensorFlow.js", "COCO-SSD", "Tailwind"],
                         githubUrl: "https://github.com/astrak12",
                         demoUrl: "/labs/object-detection"
                     }
@@ -330,7 +326,6 @@ const resources = {
                 location: "South Tangerang, Indonesia",
                 availability: "Available for full-stack projects & internships"
             },
-            // Lab SPK Translation Dictionary (English)
             spkLab: {
                 title: "Lab: Japos Waste Bank DSS",
                 subtitle: "Interactive Decision Support System experiment using SAW and TOPSIS methods in real-time.",
@@ -365,53 +360,50 @@ const resources = {
                     tableScore: "Score (V)"
                 }
             },
-            // Lab Object Detection Translation Dictionary (English)
             objectDetectionLab: {
-                title: "Lab: AI Object Detection (YOLOv8)",
-                subtitle: "Interactive simulation of an object detection application based on the YOLOv8 model, OpenCV, and Python GUI.",
+                title: "Lab: Real-time Object Detection",
+                subtitle: "In-browser computer vision system using TensorFlow.js, adapting the YOLOv8 model into an interactive web AI.",
                 tabs: {
                     dashboard: "📊 Home & Abstract",
                     kebutuhan: "📋 Requirements",
                     perancangan: "⚙️ System Design",
-                    playground: "🚀 Lab Simulation"
+                    playground: "🚀 Live Web AI"
                 },
                 dashboardContent: {
-                    aboutTitle: "📜 System Abstract",
-                    aboutDesc: "An object detection application based on the YOLOv8 model using Python and a Tkinter graphical interface. Capable of performing real-time object detection on images and webcam feeds, equipped with a dummy dataset generator feature.",
-                    modelTitle: "🤖 YOLOv8 Model",
-                    modelDesc: "Utilizes the ultralytics library for high accuracy and optimal inference speed.",
-                    guiTitle: "🖥️ GUI & OpenCV",
-                    guiDesc: "Digital image processing using OpenCV (cv2) and Tkinter for window layouts.",
-                    datasetTitle: "📦 Dataset Generator",
-                    datasetDesc: "Supporting feature to programmatically generate mock training data for model experiments."
+                    aboutTitle: "📜 Project Extraction Abstract",
+                    aboutDesc: "The original project was built using Python, YOLOv8, and Tkinter GUI. For this interactive portfolio, the AI model has been ported to a Web architecture using TensorFlow.js (COCO-SSD) so visitors can experience real-time object detection directly through their browser webcam without installation.",
+                    modelTitle: "🤖 Neural Network",
+                    modelDesc: "Transitioned from local Ultralytics (YOLOv8) to a TensorFlow.js Web Model that runs entirely on the client-side.",
+                    guiTitle: "🖥️ Modern Web UI",
+                    guiDesc: "Replaced the legacy Tkinter interface with React.js and Tailwind CSS for a seamless and responsive user experience.",
+                    datasetTitle: "⚡ Real-time Webcam API",
+                    datasetDesc: "Utilizes the HTML5 MediaDevices API to capture live video frames with minimal latency."
                 },
                 kebutuhanContent: {
-                    title: "System Requirements Analysis",
-                    funcTitle: "✅ Functional Requirements",
+                    title: "Integrated System Requirements",
+                    funcTitle: "✅ Functional Requirements (Web AI)",
                     funcItems: [
-                        "Load and display image files for object detection.",
-                        "Perform object detection inference on images.",
-                        "Access webcam devices for real-time detection.",
-                        "Save detection result screenshots.",
-                        "Clear the canvas area.",
-                        "Generate dummy datasets for model training exercises."
+                        "Securely request and manage camera (Webcam) device permissions.",
+                        "Capture real-time video streams and render them onto an HTML5 Canvas element.",
+                        "Perform continuous object detection inference loops on the client-side.",
+                        "Draw bounding boxes and confidence scores over detected objects."
                     ],
-                    nonFuncTitle: "⚙️ Non-Functional Requirements",
+                    nonFuncTitle: "⚙️ Non-Functional Requirements (Performance)",
                     nonFuncItems: [
-                        "The software interface must be responsive and user-friendly.",
-                        "The detection model must be stable with flexible threshold settings.",
-                        "Built on open-source Python libraries (ultralytics and Tkinter)."
+                        "The AI inference process must not block the main User Interface (UI) thread.",
+                        "The application must automatically scale resolution based on user hardware specifications.",
+                        "Privacy guaranteed: Video is never sent to a server; it is processed 100% within the browser."
                     ]
                 },
                 perancanganContent: {
-                    title: "System Design & Workflow",
-                    desc: "The system is designed modularly, consisting of a GUI interface module, a YOLOv8 model processing module, and a dummy dataset generator module.",
-                    workflowTitle: "// Execution Workflow:",
+                    title: "Web AI Design & Workflow",
+                    desc: "The infrastructure is built using React functional components with lifecycle management to automatically clear camera memory upon exiting the lab.",
+                    workflowTitle: "// Execution Workflow (Real-time Browser):",
                     workflowItems: [
-                        "1. User selects the input source (Image / Webcam / Dummy Dataset).",
-                        "2. OpenCV module reads the image frame and sends it to the YOLO object.",
-                        "3. The model generates bounding box coordinates and confidence levels.",
-                        "4. Rendered results are visualized on the interface canvas."
+                        "1. Mount: Loads TensorFlow model weights (COCO-SSD) from a content delivery network (CDN).",
+                        "2. Permission: Invokes navigator.mediaDevices.getUserMedia() to trigger the camera indicator.",
+                        "3. Inference Loop: requestAnimationFrame is used to process video frames into image Tensors.",
+                        "4. Predict & Render: The model returns [x, y, width, height] arrays rendered on a secondary canvas layer."
                     ]
                 }
             }

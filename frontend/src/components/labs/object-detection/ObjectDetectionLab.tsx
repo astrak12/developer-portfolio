@@ -1,34 +1,143 @@
 // frontend/src/components/labs/object-detection/ObjectDetectionLab.tsx
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+// Import TensorFlow.js dan Model COCO-SSD
+import * as tf from '@tensorflow/tfjs';
+import * as cocoSsd from '@tensorflow-models/coco-ssd';
 
 export const ObjectDetectionLab: React.FC = () => {
     const { t } = useTranslation();
     const [activeTab, setActiveTab] = useState<'dashboard' | 'kebutuhan' | 'perancangan' | 'playground'>('dashboard');
 
-    // State untuk simulasi playground interaktif YOLOv8
-    const [selectedSource, setSelectedSource] = useState<string>('sample-street');
-    const [confidenceThreshold, setConfidenceThreshold] = useState<number>(75);
-    const [isProcessing, setIsProcessing] = useState<boolean>(false);
-    const [simulationLog, setSimulationLog] = useState<string>('Sistem siap memproses input...');
-    const [detectedObjects, setDetectedObjects] = useState<{ label: string; confidence: number; box: string }[]>([]);
+    // State untuk Web AI
+    const [isModelLoading, setIsModelLoading] = useState<boolean>(false);
+    const [isCameraActive, setIsCameraActive] = useState<boolean>(false);
+    const [model, setModel] = useState<cocoSsd.ObjectDetection | null>(null);
+    const [errorMsg, setErrorMsg] = useState<string>('');
 
-    const handleRunInference = () => {
-        setIsProcessing(true);
-        setSimulationLog('Memuat model YOLOv8n dan mengekstrak frame...');
-        setDetectedObjects([]);
+    // Refs untuk Video, Canvas, dan Animation Loop
+    const videoRef = useRef<HTMLVideoElement | null>(null);
+    const canvasRef = useRef<HTMLCanvasElement | null>(null);
+    const requestRef = useRef<number | null>(null);
 
-        setTimeout(() => {
-            setIsProcessing(false);
-            setSimulationLog(`Inferensi selesai dengan Confidence Threshold >= ${confidenceThreshold}%`);
-            setDetectedObjects([
-                { label: 'person', confidence: 0.94, box: '[120, 45, 310, 150]' },
-                { label: 'car', confidence: 0.88, box: '[210, 300, 400, 520]' },
-                { label: 'traffic light', confidence: 0.79, box: '[80, 220, 140, 250]' },
-            ]);
-        }, 1200);
+    // Memuat model TensorFlow (COCO-SSD) saat masuk ke tab playground
+    useEffect(() => {
+        if (activeTab === 'playground' && !model) {
+            setIsModelLoading(true);
+            // Inisialisasi Backend TensorFlow lalu muat model
+            tf.ready().then(() => {
+                cocoSsd.load().then((loadedModel) => {
+                    setModel(loadedModel);
+                    setIsModelLoading(false);
+                }).catch(err => {
+                    console.error("Gagal memuat model:", err);
+                    setErrorMsg("Gagal memuat model AI. Pastikan koneksi internet stabil.");
+                    setIsModelLoading(false);
+                });
+            });
+        }
+    }, [activeTab, model]);
+
+    // Fungsi Utama: Mendeteksi Objek secara terus-menerus
+    const detectFrame = async () => {
+        if (videoRef.current && canvasRef.current && model && isCameraActive) {
+            const video = videoRef.current;
+            const canvas = canvasRef.current;
+
+            // Pastikan video sudah siap
+            if (video.readyState === 4) {
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                const ctx = canvas.getContext('2d');
+
+                // Lakukan deteksi (Inferensi)
+                const predictions = await model.detect(video);
+
+                if (ctx) {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                    // Gambar Bounding Box untuk setiap objek
+                    predictions.forEach(prediction => {
+                        const [x, y, width, height] = prediction.bbox;
+
+                        // Gaya Kotak
+                        ctx.strokeStyle = '#10B981'; // Warna Emerald
+                        ctx.lineWidth = 4;
+                        ctx.strokeRect(x, y, width, height);
+
+                        // Gaya Label Background
+                        ctx.fillStyle = '#10B981';
+                        ctx.fillRect(x, y - 24, width, 24);
+
+                        // Gaya Teks Label
+                        ctx.fillStyle = '#FFFFFF';
+                        ctx.font = 'bold 14px monospace';
+                        ctx.fillText(
+                            `${prediction.class.toUpperCase()} (${Math.round(prediction.score * 100)}%)`,
+                            x + 4,
+                            y - 6
+                        );
+                    });
+                }
+            }
+            // Looping ke frame berikutnya
+            requestRef.current = requestAnimationFrame(detectFrame);
+        }
     };
 
+    // Trigger loop deteksi ketika kamera dan model siap
+    useEffect(() => {
+        if (isCameraActive && model) {
+            requestRef.current = requestAnimationFrame(detectFrame);
+        }
+        return () => {
+            if (requestRef.current) cancelAnimationFrame(requestRef.current);
+        };
+    }, [isCameraActive, model]);
+
+    // Fungsi: Nyalakan/Matikan Kamera
+    const toggleCamera = async () => {
+        if (isCameraActive) {
+            // Matikan Kamera
+            if (videoRef.current && videoRef.current.srcObject) {
+                const stream = videoRef.current.srcObject as MediaStream;
+                stream.getTracks().forEach(track => track.stop());
+                videoRef.current.srcObject = null;
+            }
+            setIsCameraActive(false);
+            if (canvasRef.current) {
+                const ctx = canvasRef.current.getContext('2d');
+                ctx?.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+            }
+        } else {
+            // Nyalakan Kamera
+            try {
+                setErrorMsg('');
+                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
+                if (videoRef.current) {
+                    videoRef.current.srcObject = stream;
+                    setIsCameraActive(true);
+                }
+            } catch (err) {
+                console.error("Akses kamera ditolak atau tidak ditemukan.", err);
+                setErrorMsg("Gagal mengakses kamera. Pastikan izin kamera diberikan di browser Anda.");
+            }
+        }
+    };
+
+    // Cleanup kamera saat keluar komponen/tab
+    useEffect(() => {
+        return () => {
+            if (videoRef.current && videoRef.current.srcObject) {
+                const stream = videoRef.current.srcObject as MediaStream;
+                stream.getTracks().forEach(track => track.stop());
+            }
+            if (requestRef.current) cancelAnimationFrame(requestRef.current);
+        };
+    }, []);
+
+
+    // Ambil data array dari i18n
     const funcItems = t('objectDetectionLab.kebutuhanContent.funcItems', { returnObjects: true }) as string[];
     const nonFuncItems = t('objectDetectionLab.kebutuhanContent.nonFuncItems', { returnObjects: true }) as string[];
     const workflowItems = t('objectDetectionLab.perancanganContent.workflowItems', { returnObjects: true }) as string[];
@@ -77,7 +186,7 @@ export const ObjectDetectionLab: React.FC = () => {
                     <div className="space-y-8 animate-in fade-in duration-500">
                         <div className="bg-slate-50 dark:bg-[#060913] p-6 sm:p-8 rounded-2xl border border-slate-200 dark:border-space-starlight/20">
                             <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3 flex items-center">
-                                {t('objectDetectionLab.dashboardContent.aboutTitle')}
+                                <span className="mr-2">📜</span> {t('objectDetectionLab.dashboardContent.aboutTitle')}
                             </h3>
                             <p className="text-slate-600 dark:text-slate-400 leading-relaxed text-sm">
                                 {t('objectDetectionLab.dashboardContent.aboutDesc')}
@@ -148,81 +257,81 @@ export const ObjectDetectionLab: React.FC = () => {
                     </div>
                 )}
 
-                {/* TAB 4: SIMULASI / PLAYGROUND */}
+                {/* TAB 4: PLAYGROUND (REAL-TIME WEBCAM AI) */}
                 {activeTab === 'playground' && (
                     <div className="space-y-6 animate-in fade-in duration-300">
                         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
                             <div>
-                                <h3 className="text-lg font-bold text-slate-900 dark:text-white">Live Model Sandbox</h3>
-                                <p className="text-xs text-slate-500">Uji coba simulasi parameter inferensi YOLOv8.</p>
+                                <h3 className="text-lg font-bold text-slate-900 dark:text-white">Webcam AI Vision (Live)</h3>
+                                <p className="text-xs text-slate-500">Mendeteksi objek langsung melalui browser menggunakan TensorFlow.js</p>
                             </div>
                             <span className="text-xs bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 px-3 py-1 rounded-full font-mono font-semibold">
-                                YOLOv8n Engine Active
+                                TFJS Engine Active
                             </span>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            {/* Panel Kontrol */}
                             <div className="space-y-4 p-5 bg-slate-50 dark:bg-[#060913] border border-slate-200 dark:border-space-starlight/20 rounded-xl">
                                 <div>
-                                    <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Sumber Input</label>
-                                    <select
-                                        value={selectedSource}
-                                        onChange={(e) => setSelectedSource(e.target.value)}
-                                        className="w-full p-2.5 text-xs font-mono rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white"
-                                    >
-                                        <option value="sample-street">Kamera Jalan Raya</option>
-                                        <option value="sample-indoor">Ruangan Kerja</option>
-                                        <option value="dummy-dataset">Dataset Dummy</option>
-                                    </select>
+                                    <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">Kontrol Kamera & AI</label>
+
+                                    {isModelLoading ? (
+                                        <button disabled className="w-full py-3 bg-slate-300 text-slate-600 font-bold rounded-xl text-xs font-mono shadow-sm opacity-70 flex justify-center items-center">
+                                            <span className="animate-spin mr-2">⏳</span> Memuat Model AI...
+                                        </button>
+                                    ) : (
+                                        <button
+                                            onClick={toggleCamera}
+                                            className={`w-full py-3 text-white font-bold rounded-xl text-xs font-mono transition-colors shadow-sm ${isCameraActive
+                                                    ? 'bg-red-500 hover:bg-red-600'
+                                                    : 'bg-emerald-600 hover:bg-emerald-700'
+                                                }`}
+                                        >
+                                            {isCameraActive ? '⏹️ Matikan Kamera' : '▶️ Nyalakan Kamera & AI'}
+                                        </button>
+                                    )}
                                 </div>
 
-                                <div>
-                                    <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                                        Confidence Threshold: {confidenceThreshold}%
-                                    </label>
-                                    <input
-                                        type="range" min="20" max="95" value={confidenceThreshold}
-                                        onChange={(e) => setConfidenceThreshold(Number(e.target.value))}
-                                        className="w-full accent-emerald-600 cursor-pointer"
-                                    />
-                                </div>
+                                {errorMsg && (
+                                    <div className="p-3 bg-red-100 text-red-700 rounded-lg text-xs font-mono">
+                                        {errorMsg}
+                                    </div>
+                                )}
 
-                                <button
-                                    onClick={handleRunInference}
-                                    disabled={isProcessing}
-                                    className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs font-mono transition-colors shadow-sm disabled:opacity-50"
-                                >
-                                    {isProcessing ? 'Menjalankan Inferensi...' : 'Jalankan Deteksi 🚀'}
-                                </button>
+                                <div className="p-4 bg-slate-100 dark:bg-slate-800 rounded-lg">
+                                    <h4 className="text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Catatan Keamanan:</h4>
+                                    <p className="text-[10px] text-slate-500 leading-relaxed">
+                                        Pemrosesan gambar dilakukan 100% di sisi klien (browser). Data video Anda aman dan tidak pernah dikirim ke server mana pun.
+                                    </p>
+                                </div>
                             </div>
 
-                            <div className="md:col-span-2 p-6 bg-slate-900 rounded-xl border border-slate-800 flex flex-col justify-between min-h-[280px]">
-                                <div className="space-y-3">
-                                    <div className="flex justify-between items-center text-xs font-mono text-slate-400 border-b border-slate-800 pb-2">
-                                        <span>Status: Model Loaded</span>
-                                        <span>{selectedSource}</span>
-                                    </div>
+                            {/* Panel Kamera & Canvas (Output) */}
+                            <div className="md:col-span-2 p-2 bg-slate-900 rounded-xl border border-slate-800 relative min-h-[300px] flex items-center justify-center overflow-hidden">
 
-                                    <div className="p-4 bg-black/50 rounded-lg border border-slate-800 font-mono text-xs text-emerald-400 min-h-[120px]">
-                                        {isProcessing ? (
-                                            <p className="animate-pulse">⏳ Memproses frame gambar melalui neural network...</p>
-                                        ) : detectedObjects.length > 0 ? (
-                                            <div className="space-y-2">
-                                                <p className="text-slate-400">{simulationLog}</p>
-                                                <ul className="space-y-1 mt-2">
-                                                    {detectedObjects.map((obj, i) => (
-                                                        <li key={i} className="flex justify-between bg-emerald-950/40 p-2 rounded border border-emerald-800/50">
-                                                            <span>🎯 Object: <strong className="text-white">{obj.label}</strong></span>
-                                                            <span>Conf: {(obj.confidence * 100).toFixed(1)}% | Box: {obj.box}</span>
-                                                        </li>
-                                                    ))}
-                                                </ul>
-                                            </div>
-                                        ) : (
-                                            <p className="text-slate-500">Klik tombol "Jalankan Deteksi" untuk memulai simulasi pemrosesan objek.</p>
-                                        )}
+                                {!isCameraActive && (
+                                    <div className="absolute inset-0 flex flex-col items-center justify-center z-10 text-slate-500 font-mono text-sm">
+                                        <span className="text-4xl mb-2 opacity-50">📷</span>
+                                        <p>Kamera Dinonaktifkan</p>
+                                        <p className="text-xs mt-1">Klik tombol nyalakan kamera untuk memulai.</p>
                                     </div>
-                                </div>
+                                )}
+
+                                {/* Video Feed */}
+                                <video
+                                    ref={videoRef}
+                                    autoPlay
+                                    playsInline
+                                    muted
+                                    className={`w-full rounded-lg ${isCameraActive ? 'opacity-100' : 'opacity-0'}`}
+                                />
+
+                                {/* Canvas untuk menggambar Bounding Box */}
+                                <canvas
+                                    ref={canvasRef}
+                                    className="absolute top-0 left-0 w-full h-full pointer-events-none"
+                                />
                             </div>
                         </div>
                     </div>
