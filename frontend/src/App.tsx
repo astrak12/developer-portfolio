@@ -45,7 +45,11 @@ function App() {
           {/* Rute Interactive Labs */}
           <Route path="/labs" element={<DemoShell />}>
             <Route index element={<div className="text-center py-20 text-slate-500">Pilih project demo dari halaman portofolio.</div>} />
-            <Route path="spk" element={<SpkLab />} />
+            <Route path="spk" element={
+              <div className="p-20 bg-red-600 text-white text-4xl font-bold relative z-50 text-center rounded-xl mx-4 my-10 shadow-2xl shadow-red-500/50">
+                🚨 TEST KONEKSI RUTE SPK BERHASIL! 🚨
+              </div>
+            } />
             {/* Fallback route if path doesn't match */}
             <Route path="*" element={<div className="text-center py-20 text-red-500">Error 404: Route Not Found di dalam Labs</div>} />
           </Route>
