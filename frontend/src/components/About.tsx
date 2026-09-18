@@ -1,90 +1,54 @@
 // frontend/src/components/About.tsx
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
 
 export const About: React.FC = () => {
     const { t } = useTranslation();
-    const sectionRef = useRef<HTMLElement>(null); // Menggunakan useRef untuk performa tinggi
 
-    // Efek Velocity Scroll langsung ke DOM (Bypass React Re-render)
-    useEffect(() => {
-        let lastScrollTop = window.scrollY;
-        let ticking = false;
-
-        const handleScroll = () => {
-            if (!sectionRef.current) return;
-
-            const currentScrollTop = window.scrollY;
-            const delta = currentScrollTop - lastScrollTop;
-
-            // Batasi nilai velocity dan jalankan hanya di desktop
-            if (window.innerWidth > 768) {
-                // Manipulasi style secara langsung (Sangat ringan dan smooth)
-                const clampedVelocity = Math.max(Math.min(delta * 0.2, 20), -20);
-                sectionRef.current.style.transform = `translateY(${clampedVelocity}px)`;
-            } else {
-                sectionRef.current.style.transform = `translateY(0px)`;
-            }
-
-            lastScrollTop = currentScrollTop <= 0 ? 0 : currentScrollTop;
-            ticking = false;
-        };
-
-        const onScroll = () => {
-            if (!ticking) {
-                window.requestAnimationFrame(handleScroll);
-                ticking = true;
-            }
-        };
-
-        window.addEventListener('scroll', onScroll, { passive: true });
-
-        // Cleanup dan reset posisi saat komponen dilepas
-        return () => {
-            window.removeEventListener('scroll', onScroll);
-            if (sectionRef.current) sectionRef.current.style.transform = `translateY(0px)`;
-        };
-    }, []);
+    const handleDownloadResume = () => {
+        const link = document.createElement('a');
+        link.href = '/resume-rangga-ivano.pdf';
+        link.download = 'resume-rangga-ivano.pdf';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
 
     return (
-        <section
-            id="about"
-            ref={sectionRef}
-            // Overlapping lebih agresif (-mt-24 dan -mt-32) & Akselerasi GPU (will-change-transform)
-            className="relative z-20 px-4 sm:px-6 lg:px-8 py-16 -mt-24 sm:-mt-32 transition-transform duration-150 ease-out will-change-transform"
-        >
-            <div className="max-w-4xl mx-auto">
-                {/* Efek kartu melayang ditingkatkan: backdrop-blur-xl dan shadow-2xl */}
-                <div className="bg-white/80 dark:bg-[#0B1021]/80 backdrop-blur-xl rounded-3xl p-8 sm:p-12 shadow-2xl border border-slate-200/50 dark:border-space-starlight/40 transition-colors">
+        <section id="about" className="py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+            {/* Judul Bagian */}
+            <div className="mb-12">
+                <h2 className="text-2xl sm:text-3xl font-bold font-mono text-slate-900 dark:text-white tracking-wider flex items-center space-x-2">
+                    <span className="text-blue-600 dark:text-space-starlight">//</span>
+                    <span>01. {t('about.title')}</span>
+                </h2>
+                <div className="w-20 h-0.5 bg-gradient-to-r from-blue-600 dark:from-space-starlight to-transparent mt-3"></div>
+            </div>
 
-                    <div className="flex items-center space-x-3 mb-6">
-                        <span className="h-2 w-8 bg-emerald-500 rounded-full"></span>
-                        <h2 className="text-xs font-mono font-bold tracking-widest text-emerald-600 dark:text-emerald-400 uppercase">
-                            {t('about.title')}
-                        </h2>
-                    </div>
+            {/* Kotak Kartu Utama dengan Warna Adaptif */}
+            <div className="relative p-8 sm:p-10 rounded-2xl bg-white/80 dark:bg-[#0B1021]/90 backdrop-blur-md border border-slate-200 dark:border-space-starlight/20 shadow-xl dark:shadow-[0_0_25px_rgba(56,189,248,0.05)] overflow-hidden transition-colors duration-300">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-500/10 dark:from-space-starlight/10 to-transparent rounded-bl-full pointer-events-none"></div>
 
-                    <h3 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-4">
+                <div className="max-w-3xl">
+                    <span className="font-mono text-xs text-blue-600 dark:text-space-starlight uppercase tracking-widest block mb-2">
+                        // PROFILE SYSTEM
+                    </span>
+                    <h3 className="text-2xl sm:text-3xl font-bold font-sans text-slate-900 dark:text-white mb-3">
                         {t('about.greeting')}
                     </h3>
-
-                    <p className="text-emerald-700 dark:text-emerald-300 font-mono text-sm mb-6">
+                    <p className="font-mono text-xs text-purple-600 dark:text-space-nebula uppercase tracking-wider mb-6">
                         {t('about.role')}
                     </p>
-
-                    <p className="text-slate-600 dark:text-slate-300 text-base leading-relaxed mb-8">
+                    <p className="text-slate-600 dark:text-slate-300 text-sm sm:text-base font-sans leading-relaxed mb-8">
                         {t('about.desc')}
                     </p>
 
-                    <div className="pt-4 border-t border-slate-100 dark:border-slate-800/80 flex flex-wrap gap-4 items-center">
-                        <a
-                            href="#contact"
-                            className="inline-flex items-center space-x-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs font-mono rounded-xl transition-colors shadow-sm"
-                        >
-                            <span>{t('about.downloadBtn')}</span>
-                        </a>
-                    </div>
-
+                    <button
+                        onClick={handleDownloadResume}
+                        className="py-3 px-6 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 dark:from-space-starlight dark:to-space-nebula text-white dark:text-space-dark font-mono text-xs font-bold hover:opacity-90 transition-all shadow-lg dark:shadow-[0_0_15px_rgba(56,189,248,0.3)] inline-flex items-center space-x-2"
+                    >
+                        <span>{t('about.downloadBtn')}</span>
+                    </button>
                 </div>
             </div>
         </section>
