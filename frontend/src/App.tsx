@@ -8,6 +8,7 @@ import { Skills } from './components/Skills';
 import { ResumeSection } from './components/ResumeSection';
 import { Projects } from './components/Projects';
 import { GitHubActivity } from './components/GitHubActivity';
+import { Contact } from './components/Contact';
 import { DemoShell } from './components/labs/DemoShell';
 import { SpkLab } from './components/labs/spk/SpkLab';
 import { ObjectDetectionLab } from './components/labs/object-detection/ObjectDetectionLab';
@@ -22,6 +23,9 @@ const MainPortfolio = () => (
     <Projects />
     <ResumeSection />
     <GitHubActivity />
+
+    {/* Bagian Kontak — Form Terhubung ke API Backend */}
+    <Contact />
 
     {/* Footer Sederhana */}
     <footer className="py-8 text-center text-slate-500 dark:text-slate-400 font-mono text-sm">

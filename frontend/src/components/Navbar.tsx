@@ -10,7 +10,17 @@ export const Navbar: React.FC = () => {
     const [scrolled, setScrolled] = useState(false);
     const [activeSection, setActiveSection] = useState('about');
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-    const [darkMode, setDarkMode] = useState(false);
+    const [darkMode, setDarkMode] = useState<boolean>(() => {
+        // Baca preferensi tema dari localStorage saat initial load (fallback ke class <html>)
+        try {
+            const saved = localStorage.getItem('theme');
+            if (saved === 'light') return false;
+            if (saved === 'dark') return true;
+        } catch {
+            // localStorage tidak tersedia — abaikan
+        }
+        return document.documentElement.classList.contains('dark');
+    });
 
     // Deteksi scroll untuk efek liquid glassmorphism
     useEffect(() => {
@@ -25,21 +35,15 @@ export const Navbar: React.FC = () => {
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
-    // Inisialisasi tema dark/light dari dokumen
-    useEffect(() => {
-        if (document.documentElement.classList.contains('dark')) {
-            setDarkMode(true);
-        }
-    }, []);
-
-    // Fungsi toggle Light/Dark Mode
+    // Fungsi toggle Light/Dark Mode — simpan preferensi ke localStorage
     const toggleDarkMode = () => {
-        if (darkMode) {
-            document.documentElement.classList.remove('dark');
-            setDarkMode(false);
-        } else {
-            document.documentElement.classList.add('dark');
-            setDarkMode(true);
+        const next = !darkMode;
+        setDarkMode(next);
+        document.documentElement.classList.toggle('dark', next);
+        try {
+            localStorage.setItem('theme', next ? 'dark' : 'light');
+        } catch {
+            // localStorage tidak tersedia — abaikan
         }
     };
 

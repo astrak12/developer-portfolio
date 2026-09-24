@@ -123,6 +123,22 @@ const resources = {
                 location: "Tangerang Selatan, Indonesia",
                 availability: "Tersedia untuk proyek full-stack & magang"
             },
+            contactForm: {
+                title: "Kirim Pesan",
+                desc: "Isi form di bawah dan pesan Anda akan dikirim ke backend / disimpan di database.",
+                nameLabel: "Nama",
+                namePlaceholder: "Nama Anda",
+                emailLabel: "Email",
+                emailPlaceholder: "email@contoh.com",
+                subjectLabel: "Subjek (Opsional)",
+                subjectPlaceholder: "Topik pesan",
+                messageLabel: "Pesan",
+                messagePlaceholder: "Tulis pesan Anda di sini...",
+                submit: "Kirim Pesan",
+                sending: "Mengirim...",
+                success: "✓ Pesan berhasil dikirim! Terima kasih.",
+                error: "✗ Gagal mengirim pesan. Pastikan backend berjalan, lalu coba lagi."
+            },
             spkLab: {
                 title: "Lab: SPK Bank Sampah Japos",
                 subtitle: "Eksperimen interaktif Sistem Penunjang Keputusan menggunakan metode SAW dan TOPSIS secara real-time.",
@@ -325,6 +341,22 @@ const resources = {
                 githubAction: "Explore Repositories",
                 location: "South Tangerang, Indonesia",
                 availability: "Available for full-stack projects & internships"
+            },
+            contactForm: {
+                title: "Send a Message",
+                desc: "Fill out the form below and your message will be delivered to the backend / stored in the database.",
+                nameLabel: "Name",
+                namePlaceholder: "Your name",
+                emailLabel: "Email",
+                emailPlaceholder: "email@example.com",
+                subjectLabel: "Subject (Optional)",
+                subjectPlaceholder: "Message topic",
+                messageLabel: "Message",
+                messagePlaceholder: "Write your message here...",
+                submit: "Send Message",
+                sending: "Sending...",
+                success: "✓ Message sent successfully! Thank you.",
+                error: "✗ Failed to send the message. Make sure the backend is running, then try again."
             },
             spkLab: {
                 title: "Lab: Japos Waste Bank DSS",

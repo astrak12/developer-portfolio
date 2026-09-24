@@ -1,21 +1,62 @@
 // frontend/src/components/Projects.tsx
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import { getProjects } from '../services/api';
 
 interface ProjectItem {
+    id: number;
     title: string;
-    subtitle: string;
-    desc: string;
-    tech: string[];
-    githubUrl: string;
-    demoUrl: string;
+    slug: string;
+    summary: string;
+    description: string | null;
+    category: string;
+    status: string;
+    is_featured: boolean;
+    tech_stack: string | null; // Disimpan sebagai JSON string di database
+    live_url: string | null;
+    repository_url: string | null;
 }
+
+// tech_stack disimpan sebagai JSON string di DB, aman di-parse di sini
+const parseTechStack = (raw: string | null): string[] => {
+    if (!raw) return [];
+    try {
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed : [];
+    } catch {
+        return [];
+    }
+};
 
 export const Projects: React.FC = () => {
     const { t } = useTranslation();
-    const projects = t('projects.items', { returnObjects: true }) as ProjectItem[];
     const navigate = useNavigate();
+
+    // State untuk data project dari API + status loading/error
+    const [projects, setProjects] = useState<ProjectItem[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(false);
+
+    useEffect(() => {
+        // Ambil data project dari backend (GET /api/projects)
+        getProjects()
+            .then((res) => {
+                const payload = res.data;
+                const items = Array.isArray(payload) ? payload : payload?.data ?? [];
+                setProjects(items);
+                setLoading(false);
+            })
+            .catch((err) => {
+                console.error("Gagal mengambil data projects:", err);
+                setError(true);
+                setLoading(false);
+            });
+    }, []);
+
+    // Hanya tampilkan project unggulan (is_featured) jika ada; fallback ke semua data
+    const featuredProjects = projects.filter((p) => p.is_featured);
+    const visibleProjects = featuredProjects.length > 0 ? featuredProjects : projects;
 
     return (
         <section id="projects" className="py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
@@ -29,86 +70,111 @@ export const Projects: React.FC = () => {
                 <div className="w-20 h-0.5 bg-gradient-to-r from-blue-600 dark:from-space-starlight to-transparent mt-3"></div>
             </div>
 
-            {/* Grid Daftar Proyek */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {Array.isArray(projects) && projects.map((project, index) => (
-                    <div
-                        key={index}
-                        className="relative p-6 sm:p-8 rounded-2xl bg-white/80 dark:bg-[#0B1021]/90 backdrop-blur-md border border-slate-200 dark:border-space-starlight/20 hover:border-purple-500 dark:hover:border-space-nebula/50 transition-all flex flex-col justify-between shadow-xl dark:shadow-[0_0_25px_rgba(56,189,248,0.05)] group overflow-hidden"
-                    >
-                        <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-blue-500/10 dark:from-space-starlight/10 to-transparent rounded-bl-full pointer-events-none"></div>
+            {/* Status Loading */}
+            {loading && (
+                <p className="text-center font-mono text-xs text-slate-500">Syncing project telemetry...</p>
+            )}
 
-                        <div>
-                            <div className="flex items-center space-x-3 mb-4">
-                                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-purple-600 dark:from-space-starlight dark:to-space-nebula flex items-center justify-center text-white dark:text-space-dark font-bold text-lg shadow-md">
-                                    ⚡
-                                </div>
-                                <div>
-                                    <h3 className="text-xl font-bold font-sans text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-space-starlight transition-colors">
-                                        {project.title}
-                                    </h3>
-                                    <span className="font-mono text-[10px] text-blue-600 dark:text-space-starlight uppercase tracking-widest">
-                                        {project.subtitle}
-                                    </span>
-                                </div>
-                            </div>
+            {/* Status Error — fallback rapi, aplikasi tetap berjalan */}
+            {!loading && error && (
+                <p className="text-center font-mono text-xs text-red-500">
+                    Failed to load projects from API. Make sure the backend is running.
+                </p>
+            )}
 
-                            <p className="text-slate-600 dark:text-slate-300 text-sm font-sans leading-relaxed mb-6">
-                                {project.desc}
-                            </p>
+            {/* Fallback Kosong */}
+            {!loading && !error && visibleProjects.length === 0 && (
+                <p className="text-center font-mono text-xs text-slate-500">
+                    No project data available yet.
+                </p>
+            )}
 
-                            <div className="flex flex-wrap gap-2 mb-8">
-                                {project.tech.map((techItem, techIdx) => (
-                                    <span
-                                        key={techIdx}
-                                        className="px-3 py-1 bg-slate-100 dark:bg-space-light/40 border border-slate-200 dark:border-space-starlight/20 rounded-md font-mono text-[11px] text-blue-600 dark:text-space-starlight shadow-sm"
-                                    >
-                                        {techItem}
-                                    </span>
-                                ))}
-                            </div>
-                        </div>
-
-                        <div className="flex items-center space-x-3 pt-4 border-t border-slate-200 dark:border-space-starlight/10 font-mono text-xs">
-                            {/* Logika Tombol Demo Baru */}
-                            {project.demoUrl.startsWith('/labs') ? (
-                                <button
-                                    onClick={() => navigate(project.demoUrl)}
-                                    className="flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 dark:from-space-starlight dark:to-space-nebula text-white dark:text-space-dark font-bold text-center hover:opacity-90 transition-all shadow-md flex items-center justify-center space-x-2"
-                                >
-                                    <span>Try Demo</span>
-                                    <span className="text-lg">🧪</span>
-                                </button>
-                            ) : project.demoUrl !== "#" ? (
-                                <a
-                                    href={project.demoUrl}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 dark:from-space-starlight dark:to-space-nebula text-white dark:text-space-dark font-bold text-center hover:opacity-90 transition-all shadow-md"
-                                >
-                                    <span>{t('projects.demoBtn')} ↗</span>
-                                </a>
-                            ) : (
-                                <button
-                                    disabled
-                                    className="flex-1 py-3 px-4 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-500 font-bold text-center cursor-not-allowed"
-                                >
-                                    <span>Segera Hadir</span>
-                                </button>
-                            )}
-
-                            <a
-                                href={project.githubUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="py-3 px-5 rounded-xl bg-slate-100 dark:bg-[#121829] border border-slate-200 dark:border-space-starlight/30 text-slate-800 dark:text-white font-bold hover:bg-slate-200 dark:hover:bg-space-starlight/10 transition-all text-center"
+            {/* Grid Daftar Proyek (data dari API) */}
+            {!loading && !error && visibleProjects.length > 0 && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    {visibleProjects.map((project, index) => {
+                        const demoUrl = project.live_url || '#';
+                        const techStack = parseTechStack(project.tech_stack);
+                        return (
+                            <div
+                                key={project.id ?? index}
+                                className="relative p-6 sm:p-8 rounded-2xl bg-white/80 dark:bg-[#0B1021]/90 backdrop-blur-md border border-slate-200 dark:border-space-starlight/20 hover:border-purple-500 dark:hover:border-space-nebula/50 transition-all flex flex-col justify-between shadow-xl dark:shadow-[0_0_25px_rgba(56,189,248,0.05)] group overflow-hidden"
                             >
-                                <span>{t('projects.codeBtn')}</span>
-                            </a>
-                        </div>
-                    </div>
-                ))}
-            </div>
+                                <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-blue-500/10 dark:from-space-starlight/10 to-transparent rounded-bl-full pointer-events-none"></div>
+
+                                <div>
+                                    <div className="flex items-center space-x-3 mb-4">
+                                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-purple-600 dark:from-space-starlight dark:to-space-nebula flex items-center justify-center text-white dark:text-space-dark font-bold text-lg shadow-md">
+                                            ⚡
+                                        </div>
+                                        <div>
+                                            <h3 className="text-xl font-bold font-sans text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-space-starlight transition-colors">
+                                                {project.title}
+                                            </h3>
+                                            <span className="font-mono text-[10px] text-blue-600 dark:text-space-starlight uppercase tracking-widest">
+                                                {project.category}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <p className="text-slate-600 dark:text-slate-300 text-sm font-sans leading-relaxed mb-6">
+                                        {project.summary || project.description}
+                                    </p>
+
+                                    <div className="flex flex-wrap gap-2 mb-8">
+                                        {techStack.map((techItem, techIdx) => (
+                                            <span
+                                                key={techIdx}
+                                                className="px-3 py-1 bg-slate-100 dark:bg-space-light/40 border border-slate-200 dark:border-space-starlight/20 rounded-md font-mono text-[11px] text-blue-600 dark:text-space-starlight shadow-sm"
+                                            >
+                                                {techItem}
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center space-x-3 pt-4 border-t border-slate-200 dark:border-space-starlight/10 font-mono text-xs">
+                                    {/* Logika Tombol Demo Baru */}
+                                    {demoUrl.startsWith('/labs') ? (
+                                        <button
+                                            onClick={() => navigate(demoUrl)}
+                                            className="flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 dark:from-space-starlight dark:to-space-nebula text-white dark:text-space-dark font-bold text-center hover:opacity-90 transition-all shadow-md flex items-center justify-center space-x-2"
+                                        >
+                                            <span>Try Demo</span>
+                                            <span className="text-lg">🧪</span>
+                                        </button>
+                                    ) : demoUrl !== "#" ? (
+                                        <a
+                                            href={demoUrl}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 dark:from-space-starlight dark:to-space-nebula text-white dark:text-space-dark font-bold text-center hover:opacity-90 transition-all shadow-md"
+                                        >
+                                            <span>{t('projects.demoBtn')} ↗</span>
+                                        </a>
+                                    ) : (
+                                        <button
+                                            disabled
+                                            className="flex-1 py-3 px-4 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-500 font-bold text-center cursor-not-allowed"
+                                        >
+                                            <span>Segera Hadir</span>
+                                        </button>
+                                    )}
+
+                                    <a
+                                        href={project.repository_url || '#'}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="py-3 px-5 rounded-xl bg-slate-100 dark:bg-[#121829] border border-slate-200 dark:border-space-starlight/30 text-slate-800 dark:text-white font-bold hover:bg-slate-200 dark:hover:bg-space-starlight/10 transition-all text-center"
+                                    >
+                                        <span>{t('projects.codeBtn')}</span>
+                                    </a>
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+            )}
         </section>
     );
 };

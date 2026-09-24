@@ -4,7 +4,7 @@ use App\Http\Controllers\Controller;
 
 class ProfileController extends Controller
 {
-    public function show()
+    public function index()
 {
         return response()->json([
             'success' => true,

@@ -2,6 +2,23 @@
 <html lang="id" class="dark">
 
 <head>
+  <script>
+    // Baca preferensi tema dari localStorage sebelum React selesai render (anti-FOUC).
+    // Default tetap dark sesuai tema dasar yang sudah ada bila belum ada preferensi.
+    (function () {
+      try {
+        var stored = localStorage.getItem('theme');
+        var dark = stored ? stored === 'dark' : true;
+        if (dark) {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
+      } catch (e) {
+        // localStorage tidak tersedia — biarkan default (dark)
+      }
+    })();
+  </script>
   <meta charset="UTF-8" />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
